@@ -1,0 +1,278 @@
+/* Stages (see Curtain.tsx):
+   closed  → curtains drawn, "Open Invitation" on the seam
+   opening → seal and text fade 0–300ms, curtains gather to the sides 250–1850,
+             the invitation card fades in behind them 700–1600
+   card    → the card is readable and interactive, framed by the gathered curtains
+   leaving → overlay fades out, then it unmounts */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 5.5rem 1.5rem 2rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f8f3ec;
+  color: #6f5a48;
+  text-align: center;
+}
+
+/* Keep the page from scrolling behind the curtains. */
+:global(html):has(.overlay) {
+  overflow: hidden;
+}
+
+.overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(248 243 236 / 0.7);
+}
+
+.backdropImage {
+  z-index: -2;
+  object-fit: cover;
+  filter: blur(6px);
+  transform: scale(1.06);
+}
+
+/* ── Curtains ────────────────────────────────────── */
+
+.curtains {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+/* Satin drapes: repeating light and shadow bands read as folds, and bunch up
+   naturally when the panel is squeezed toward its side. */
+.panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0) 35%, rgb(90 70 50 / 0.1)),
+    repeating-linear-gradient(
+      to right,
+      #dccab0 0,
+      #efe2cf 1.4rem,
+      #fbf5ec 2.3rem,
+      #f0e4d2 3.1rem,
+      #dccab0 4.4rem
+    );
+  transition: transform 1600ms cubic-bezier(0.65, 0, 0.35, 1) 250ms;
+}
+
+.panelLeft {
+  left: 0;
+  transform-origin: left center;
+  box-shadow: inset -18px 0 24px -16px rgb(80 60 40 / 0.35);
+}
+
+.panelRight {
+  right: 0;
+  transform-origin: right center;
+  box-shadow: inset 18px 0 24px -16px rgb(80 60 40 / 0.35);
+}
+
+/* Scalloped valance across the top: a band with hanging swags. */
+.valance {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4.75rem;
+  background:
+    linear-gradient(to bottom, rgb(90 70 50 / 0.12), rgb(90 70 50 / 0) 40%, rgb(90 70 50 / 0.12)),
+    repeating-linear-gradient(
+      to right,
+      #d6c2a4 0,
+      #eadbc5 1rem,
+      #f7efe3 1.6rem,
+      #e5d4bb 2.4rem,
+      #d6c2a4 3rem
+    );
+  --swags:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 1.5rem) no-repeat,
+    radial-gradient(50% 1.5rem at 50% 0, #000 98%, #0000) bottom / 5rem 1.5rem repeat-x;
+  -webkit-mask: var(--swags);
+  mask: var(--swags);
+}
+
+.floral {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* The bouquet art is drawn for the top-left corner; the others mirror it. */
+.floralTopLeft {
+  top: 0.25rem;
+  left: -1.5rem;
+  width: clamp(8rem, 30vw, 17rem);
+}
+
+.floralTopRight {
+  top: 0.25rem;
+  right: -1.5rem;
+  width: clamp(8rem, 30vw, 17rem);
+  scale: -1 1;
+}
+
+.floralBottomLeft {
+  bottom: -1.5rem;
+  left: -1.5rem;
+  width: clamp(6rem, 22vw, 12rem);
+  scale: 1 -1;
+}
+
+.floralBottomRight {
+  right: -1.5rem;
+  bottom: -1.5rem;
+  width: clamp(6rem, 22vw, 12rem);
+  rotate: 180deg;
+}
+
+/* ── Text on the seam ────────────────────────────── */
+
+.front {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+.front button {
+  pointer-events: auto;
+}
+
+.title {
+  font-family: var(--font-great-vibes), cursive;
+  font-size: clamp(2.5rem, min(11vw, 9svh), 4.5rem);
+  line-height: 1.1;
+  text-shadow: 0 0 1.25rem #fbf5ec;
+}
+
+.seal {
+  display: grid;
+  width: clamp(4rem, 16vw, 5.5rem);
+  aspect-ratio: 1;
+  margin-top: 1.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c09a6c, #8d704c 55%, #6b5237);
+  box-shadow:
+    0 4px 10px rgb(60 40 20 / 0.35),
+    inset 0 0 0 3px rgb(255 250 242 / 0.18);
+  color: #fffaf2;
+}
+
+.sealFlower {
+  width: 62%;
+  height: 62%;
+}
+
+.names {
+  margin-top: 1.25rem;
+  font-family: var(--font-great-vibes), cursive;
+  font-size: clamp(2rem, min(9vw, 7svh), 3rem);
+  line-height: 1.15;
+  text-shadow: 0 0 1rem #fbf5ec;
+}
+
+.date {
+  margin-top: 0.25rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 1rem #fbf5ec;
+}
+
+.openButton {
+  margin-top: 2rem;
+}
+
+/* ── Invitation card behind the curtains ─────────── */
+
+.cardLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 2.5rem;
+  padding: 6.5rem 1.25rem 2.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 600ms ease,
+    visibility 0s linear 600ms;
+}
+
+.cardLift {
+  flex-shrink: 0;
+  transform: translateY(1.5rem) scale(0.94);
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ── Stage styles ────────────────────────────────── */
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .panel {
+  transform: scaleX(0.14);
+}
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .curtains {
+  pointer-events: none;
+}
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .front {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .front button {
+  pointer-events: none;
+}
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .cardLayer {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 900ms ease 700ms;
+}
+
+.overlay:is([data-stage="opening"], [data-stage="card"], [data-stage="leaving"]) .cardLift {
+  transform: none;
+  transition-delay: 700ms;
+}
+
+.overlay[data-stage="card"] .cardLayer {
+  pointer-events: auto;
+}
+
+.overlay[data-stage="leaving"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 700ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay * {
+    transition: none !important;
+  }
+}

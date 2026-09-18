@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { Attire } from "./components/Attire";
 import { Entourage } from "./components/Entourage";
-import { Envelope } from "./components/Envelope";
+import { Curtain } from "./components/Curtain";
 import { Faq } from "./components/Faq";
 import { Hero } from "./components/Hero";
 import { InvitationCard } from "./components/InvitationCard";
@@ -12,16 +12,16 @@ import { RsvpProvider } from "./components/RsvpProvider";
 import { Schedule } from "./components/Schedule";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
-import { coupleNames, wedding, weekday } from "./content";
+import { coupleInitials, coupleNames, wedding, weekday } from "./content";
 
 export default function Home() {
   const { couple, date, rsvp } = wedding;
   // Chrome draws a broken-image icon even with alt="", so only use the painting once it exists.
   const backgroundSrc = existsSync(join(process.cwd(), "public", "bg.jpg")) ? "/bg.jpg" : undefined;
   return (
-    <Envelope
+    <Curtain
       backgroundSrc={backgroundSrc}
-      names={coupleNames}
+      initials={coupleInitials}
       dateDisplay={date.display}
       card={
         <InvitationCard
@@ -59,6 +59,6 @@ export default function Home() {
           hashtag={wedding.hashtag}
         />
       </RsvpProvider>
-    </Envelope>
+    </Curtain>
   );
 }

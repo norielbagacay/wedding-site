@@ -43,7 +43,7 @@ export type Wedding = {
   siteUrl: string;
   couple: { first: string; second: string; monogram: [string, string] };
   date: { display: string; iso: string };
-  /** The wording on the invitation card that slides out of the envelope. */
+  /** The wording on the invitation card revealed when the curtains open. */
   invitation: { opening: string; request: string };
   hashtag: string;
   rsvp: { deadline: string; googleForm: GoogleFormConfig };
@@ -158,6 +158,9 @@ export const wedding: Wedding = {
 };
 
 export const coupleNames = `${wedding.couple.first} & ${wedding.couple.second}`;
+
+/** e.g. "G & R", shown on the closed curtains. */
+export const coupleInitials = wedding.couple.monogram.join(" & ");
 
 /** e.g. "Sunday", derived from `date.iso`. */
 export const weekday = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
