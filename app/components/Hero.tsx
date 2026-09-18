@@ -15,7 +15,7 @@ export function Hero({ backgroundSrc, names, dateDisplay, dateIso }: HeroProps) 
   return (
     <section
       id="top"
-      className="relative isolate flex min-h-[calc(100svh-var(--header-h))] flex-col items-center overflow-hidden bg-linear-to-b from-sand via-cream to-sand px-6 pt-16 pb-8 text-center"
+      className="relative isolate flex min-h-[calc(100svh-var(--header-h))] flex-col items-center overflow-hidden bg-linear-to-b from-sand via-cream to-sand px-5 pt-12 pb-8 text-center sm:px-6 sm:pt-16"
     >
       {backgroundSrc && (
         <Image
@@ -42,9 +42,9 @@ export function Hero({ backgroundSrc, names, dateDisplay, dateIso }: HeroProps) 
       />
 
       <div className="flex flex-1 flex-col items-center justify-center [text-shadow:0_0_1.25rem_var(--color-cream)]">
-        <p className="font-script text-5xl sm:text-6xl">You&rsquo;re Invited</p>
-        <p className="mt-4 text-xl tracking-wide sm:text-2xl">to the wedding of</p>
-        <h1 className="mt-2 font-script text-[clamp(2.75rem,12vw,6.5rem)] leading-tight text-balance">
+        <p className="font-script text-[clamp(2.5rem,11vw,3.75rem)] leading-tight">You&rsquo;re Invited</p>
+        <p className="mt-3 text-xl tracking-wide sm:text-2xl">to the wedding of</p>
+        <h1 className="mt-2 font-script text-[clamp(2.5rem,12vw,6.5rem)] leading-tight text-balance">
           {names}
         </h1>
         <p className="mt-4 text-2xl tracking-wide sm:text-3xl">

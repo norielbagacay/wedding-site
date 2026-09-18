@@ -1,7 +1,7 @@
 .card {
   position: relative;
-  width: min(84vw, 25rem);
-  padding: 4.25rem 1.75rem 4rem;
+  width: min(86vw, 25rem);
+  padding: 4.25rem clamp(1rem, 5vw, 1.75rem) 4rem;
   border-radius: 0.5rem;
   background: #fffaf2;
   box-shadow: 0 24px 48px -16px rgb(80 60 40 / 0.35);

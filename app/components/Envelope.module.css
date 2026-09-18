@@ -5,15 +5,17 @@
    leaving → overlay fades out, then it unmounts */
 
 .overlay {
-  --env-w: min(72vw, 28rem);
+  /* Sized by width, and by height so it still fits on phones held sideways. */
+  --env-w: max(10rem, min(72vw, 28rem, (100svh - 18rem) * 1.5));
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: safe center;
   justify-content: center;
   padding: 1.5rem;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #f8f3ec;
   color: #6f5a48;
   text-align: center;
@@ -53,7 +55,7 @@
 
 .title {
   font-family: var(--font-great-vibes), cursive;
-  font-size: clamp(3rem, 12vw, 4.5rem);
+  font-size: clamp(2.25rem, min(12vw, 9svh), 4.5rem);
   line-height: 1;
 }
 

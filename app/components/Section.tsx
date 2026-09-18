@@ -16,7 +16,7 @@ export function Section({ id, title, subtitle, tone, children }: SectionProps) {
   return (
     <section id={id} aria-labelledby={headingId} className={`${TONES[tone]} px-6 py-20 sm:py-28`}>
       <div className="reveal mx-auto max-w-4xl text-center">
-        <h2 id={headingId} className="font-script text-5xl sm:text-6xl">
+        <h2 id={headingId} className="font-script text-[clamp(2.25rem,10vw,3.75rem)] leading-tight">
           {title}
         </h2>
         <FloralDivider idPrefix={`${id}-divider`} className="mx-auto mt-2 w-44 sm:w-52" />
