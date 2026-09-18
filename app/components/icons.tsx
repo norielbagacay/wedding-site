@@ -97,6 +97,21 @@ export function LeafIcon(props: IconProps) {
   );
 }
 
+export function FlowerIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      {[0, 72, 144, 216, 288].map((angle) => (
+        <path
+          key={angle}
+          d="M12 11.2C8.6 8.8 8.8 3.6 12 3C15.2 3.6 15.4 8.8 12 11.2z"
+          transform={`rotate(${angle} 12 12)`}
+        />
+      ))}
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+    </Icon>
+  );
+}
+
 export function CloseIcon(props: IconProps) {
   return (
     <Icon {...props}>

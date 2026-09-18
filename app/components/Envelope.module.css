@@ -158,11 +158,14 @@
     0 2px 6px rgb(60 40 20 / 0.35),
     inset 0 0 0 3px rgb(255 250 242 / 0.18);
   color: #fffaf2;
-  font-size: calc(var(--env-w) * 0.058);
-  letter-spacing: -0.04em;
   transition:
     opacity 300ms ease,
     scale 300ms ease;
+}
+
+.sealFlower {
+  width: 62%;
+  height: 62%;
 }
 
 .floral {

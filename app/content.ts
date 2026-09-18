@@ -55,14 +55,14 @@ export type Wedding = {
 };
 
 export const wedding: Wedding = {
-  siteUrl: "http://localhost:3000",
-  couple: { first: "Rosher", second: "Genesis", monogram: ["R", "G"] },
+  siteUrl: "https://genesis-and-rosher.vercel.app",
+  couple: { first: "Genesis", second: "Rosher", monogram: ["G", "R"] },
   date: { display: "May 9, 2027", iso: "2027-05-09" },
   invitation: {
     opening: "Together with their families",
     request: "request the honor of your presence at the celebration of their marriage",
   },
-  hashtag: "#RosherAndGenesis",
+  hashtag: "#GenesisAndRosher",
   rsvp: {
     deadline: "April 9, 2027",
     googleForm: {
@@ -73,7 +73,7 @@ export const wedding: Wedding = {
   story: [
     {
       title: "How we met",
-      text: "Sample: a few sentences about the day Rosher and Genesis first crossed paths.",
+      text: "Sample: a few sentences about the day Genesis and Rosher first crossed paths.",
     },
     {
       title: "The proposal",

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./Envelope.module.css";
 import { FloralCorner } from "./Florals";
+import { FlowerIcon } from "./icons";
 
 /** Durations of the "opening" and "leaving" stages in Envelope.module.css. */
 const OPENING_MS = 1700;
@@ -13,7 +14,6 @@ type Stage = "sealed" | "opening" | "card" | "leaving" | "open";
 
 type EnvelopeProps = {
   backgroundSrc?: string;
-  monogram: readonly [string, string];
   names: string;
   dateDisplay: string;
   /** The full invitation shown once the envelope is open. */
@@ -26,7 +26,7 @@ function prefersReducedMotion() {
 }
 
 /** Covers the page with a sealed invitation until the guest opens it and reads the card. */
-export function Envelope({ backgroundSrc, monogram, names, dateDisplay, card, children }: EnvelopeProps) {
+export function Envelope({ backgroundSrc, names, dateDisplay, card, children }: EnvelopeProps) {
   const [stage, setStage] = useState<Stage>("sealed");
   const enterRef = useRef<HTMLButtonElement>(null);
 
@@ -92,8 +92,7 @@ export function Envelope({ backgroundSrc, monogram, names, dateDisplay, card, ch
               <span className={styles.pocketBottom} />
               <span className={styles.flap} />
               <span className={styles.seal}>
-                {monogram[0]}
-                {monogram[1]}
+                <FlowerIcon className={styles.sealFlower} />
               </span>
               <FloralCorner idPrefix="env-tl" className={`${styles.floral} ${styles.floralTopLeft}`} />
               <FloralCorner idPrefix="env-tr" className={`${styles.floral} ${styles.floralTopRight}`} />

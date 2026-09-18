@@ -21,7 +21,6 @@ export default function Home() {
   return (
     <Envelope
       backgroundSrc={backgroundSrc}
-      monogram={couple.monogram}
       names={coupleNames}
       dateDisplay={date.display}
       card={
