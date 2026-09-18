@@ -29,7 +29,7 @@ Rejected: Framer Motion (a dependency for little gain), one route per section (g
   - `cream` `#f8f3ec`: header and page background
   - `sand` `#efe6da`: alternate section background
   - `taupe` `#6f5a48`: body text
-  - `taupe-soft` `#8b7564`: secondary text
+  - `taupe-soft` `#76604f`: secondary text (darkened from `#8b7564` so it passes AA on `sand`)
   - `tan` `#a48660`: button and accents
   - `tan-dark` `#8d704c`: button hover
   - `ivory` `#fffaf2`: button text
