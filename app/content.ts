@@ -1,0 +1,115 @@
+/**
+ * Everything guests read on the invitation lives in this file.
+ *
+ * Before sharing the link:
+ * - Replace every value that says "Sample".
+ * - Set `siteUrl` to the deployed address (used for link previews).
+ * - Keep `date.display` and `date.iso` on the same day (`npm test` checks this).
+ * - Paste the Google Form link into `rsvp.formUrl`. While it's empty, the RSVP
+ *   buttons scroll to the RSVP section, which says the form is coming soon.
+ */
+
+export type StoryBeat = { title: string; text: string };
+
+export type WeddingEvent = {
+  name: string;
+  time: string;
+  venue: string;
+  address: string;
+  mapUrl: string;
+};
+
+export type EntourageGroup = { group: string; names: string[] };
+
+export type FaqItem = { question: string; answer: string };
+
+export type Wedding = {
+  siteUrl: string;
+  couple: { first: string; second: string; monogram: [string, string] };
+  date: { display: string; iso: string };
+  hashtag: string;
+  rsvp: { formUrl: string; deadline: string };
+  story: StoryBeat[];
+  events: WeddingEvent[];
+  entourage: EntourageGroup[];
+  faqs: FaqItem[];
+};
+
+export const wedding: Wedding = {
+  siteUrl: "http://localhost:3000",
+  couple: { first: "Rosher", second: "Genesis", monogram: ["R", "G"] },
+  date: { display: "December 12, 2026", iso: "2026-12-12" },
+  hashtag: "#RosherAndGenesis",
+  rsvp: { formUrl: "", deadline: "November 12, 2026" },
+  story: [
+    {
+      title: "How we met",
+      text: "Sample: a few sentences about the day Rosher and Genesis first crossed paths.",
+    },
+    {
+      title: "The proposal",
+      text: "Sample: where and how the question was asked, and the answer that followed.",
+    },
+    {
+      title: "Forever starts",
+      text: "Sample: what the two of you look forward to most as you begin married life.",
+    },
+  ],
+  events: [
+    {
+      name: "Ceremony",
+      time: "3:00 PM",
+      venue: "Sample Chapel",
+      address: "123 Placeholder St., Sample City",
+      mapUrl: "https://www.google.com/maps/search/?api=1&query=Sample+Chapel",
+    },
+    {
+      name: "Reception",
+      time: "6:00 PM",
+      venue: "Sample Garden Pavilion",
+      address: "456 Example Ave., Sample City",
+      mapUrl: "https://www.google.com/maps/search/?api=1&query=Sample+Garden+Pavilion",
+    },
+  ],
+  entourage: [
+    {
+      group: "Principal Sponsors",
+      names: ["Sample Sponsor 1", "Sample Sponsor 2", "Sample Sponsor 3", "Sample Sponsor 4"],
+    },
+    { group: "Best Man & Maid of Honor", names: ["Sample Best Man", "Sample Maid of Honor"] },
+    {
+      group: "Groomsmen",
+      names: ["Sample Groomsman 1", "Sample Groomsman 2", "Sample Groomsman 3"],
+    },
+    {
+      group: "Bridesmaids",
+      names: ["Sample Bridesmaid 1", "Sample Bridesmaid 2", "Sample Bridesmaid 3"],
+    },
+  ],
+  faqs: [
+    {
+      question: "What should I wear?",
+      answer:
+        "Sample: formal attire in soft neutrals such as cream, beige, and sage. Please avoid white.",
+    },
+    {
+      question: "Can I bring a plus-one?",
+      answer: "Sample: we can only accommodate the guests named on your invitation.",
+    },
+    {
+      question: "Are children welcome?",
+      answer: "Sample: we love your little ones, but this will be an adults-only celebration.",
+    },
+    {
+      question: "Is there parking?",
+      answer: "Sample: free parking is available at both venues.",
+    },
+    {
+      question: "What about gifts?",
+      answer:
+        "Sample: your presence is the best gift. If you wish to give, a contribution toward our new home would be appreciated.",
+    },
+  ],
+};
+
+export const coupleNames = `${wedding.couple.first} & ${wedding.couple.second}`;
