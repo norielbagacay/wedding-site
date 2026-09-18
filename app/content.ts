@@ -35,6 +35,8 @@ export type Wedding = {
   siteUrl: string;
   couple: { first: string; second: string; monogram: [string, string] };
   date: { display: string; iso: string };
+  /** The wording on the invitation card that slides out of the envelope. */
+  invitation: { opening: string; request: string };
   hashtag: string;
   rsvp: { deadline: string; googleForm: GoogleFormConfig };
   story: StoryBeat[];
@@ -47,6 +49,10 @@ export const wedding: Wedding = {
   siteUrl: "http://localhost:3000",
   couple: { first: "Rosher", second: "Genesis", monogram: ["R", "G"] },
   date: { display: "May 9, 2027", iso: "2027-05-09" },
+  invitation: {
+    opening: "Together with their families",
+    request: "request the honor of your presence at the celebration of their marriage",
+  },
   hashtag: "#RosherAndGenesis",
   rsvp: {
     deadline: "April 9, 2027",
@@ -127,3 +133,9 @@ export const wedding: Wedding = {
 };
 
 export const coupleNames = `${wedding.couple.first} & ${wedding.couple.second}`;
+
+/** e.g. "Sunday", derived from `date.iso`. */
+export const weekday = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
+  weekday: "long",
+  timeZone: "UTC",
+});

@@ -1,0 +1,108 @@
+.card {
+  position: relative;
+  width: min(84vw, 25rem);
+  padding: 4.25rem 1.75rem 4rem;
+  border-radius: 0.5rem;
+  background: #fffaf2;
+  box-shadow: 0 24px 48px -16px rgb(80 60 40 / 0.35);
+  color: #6f5a48;
+  text-align: center;
+}
+
+/* Thin inset border, like a printed card. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid rgb(164 134 96 / 0.4);
+  border-radius: 0.3rem;
+  pointer-events: none;
+}
+
+.floral {
+  position: absolute;
+  width: 40%;
+  pointer-events: none;
+}
+
+.floralTop {
+  top: -3.25rem;
+  left: -2.75rem;
+}
+
+.floralBottom {
+  right: -2.75rem;
+  bottom: -3.25rem;
+  rotate: 180deg;
+}
+
+.opening {
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #76604f;
+}
+
+.names {
+  margin-top: 0.6rem;
+  font-family: var(--font-great-vibes), cursive;
+  font-size: clamp(2.5rem, 11vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.request {
+  max-width: 17rem;
+  margin: 0.6rem auto 0;
+  font-size: 1.125rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.divider {
+  width: 40%;
+  height: 1px;
+  margin: 1.25rem auto;
+  border: 0;
+  background: linear-gradient(to right, transparent, #a48660, transparent);
+}
+
+.weekday {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8d704c;
+}
+
+.date {
+  margin-top: 0.2rem;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.events {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.eventName {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #8d704c;
+}
+
+.address {
+  font-size: 0.95rem;
+  color: #76604f;
+}
+
+.rsvpBy {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-style: italic;
+  color: #76604f;
+}

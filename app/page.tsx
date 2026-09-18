@@ -4,13 +4,14 @@ import { Entourage } from "./components/Entourage";
 import { Envelope } from "./components/Envelope";
 import { Faq } from "./components/Faq";
 import { Hero } from "./components/Hero";
+import { InvitationCard } from "./components/InvitationCard";
 import { OurStory } from "./components/OurStory";
 import { Rsvp } from "./components/Rsvp";
 import { RsvpProvider } from "./components/RsvpProvider";
 import { Schedule } from "./components/Schedule";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
-import { coupleNames, wedding } from "./content";
+import { coupleNames, wedding, weekday } from "./content";
 
 export default function Home() {
   const { couple, date, rsvp } = wedding;
@@ -22,6 +23,18 @@ export default function Home() {
       monogram={couple.monogram}
       names={coupleNames}
       dateDisplay={date.display}
+      card={
+        <InvitationCard
+          opening={wedding.invitation.opening}
+          names={coupleNames}
+          request={wedding.invitation.request}
+          weekday={weekday}
+          dateDisplay={date.display}
+          dateIso={date.iso}
+          events={wedding.events}
+          deadline={rsvp.deadline}
+        />
+      }
     >
       <RsvpProvider form={rsvp.googleForm} deadline={rsvp.deadline}>
         <SiteHeader monogram={couple.monogram} />
