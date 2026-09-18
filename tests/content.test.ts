@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { wedding } from "../app/content.ts";
+import { isGoogleFormReady } from "../app/lib/rsvp.ts";
 
 test("the display date and the ISO date are the same day", () => {
   const fromIso = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
@@ -16,9 +17,11 @@ test("siteUrl is an absolute http(s) URL", () => {
   assert.match(new URL(wedding.siteUrl).protocol, /^https?:$/);
 });
 
-test("the RSVP form URL is empty or https", () => {
-  const url = wedding.rsvp.formUrl.trim();
-  if (url) assert.equal(new URL(url).protocol, "https:");
+test("the RSVP Google Form is either not set up yet or fully set up", () => {
+  const form = wedding.rsvp.googleForm;
+  if (form.formId.trim()) {
+    assert.ok(isGoogleFormReady(form), "each question needs its entry.<number> id");
+  }
 });
 
 test("every event has an https map link", () => {

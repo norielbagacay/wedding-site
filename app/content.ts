@@ -5,9 +5,17 @@
  * - Replace every value that says "Sample".
  * - Set `siteUrl` to the deployed address (used for link previews).
  * - Keep `date.display` and `date.iso` on the same day (`npm test` checks this).
- * - Paste the Google Form link into `rsvp.formUrl`. While it's empty, the RSVP
- *   buttons scroll to the RSVP section, which says the form is coming soon.
+ * - Connect the RSVP pop-up to a Google Form (until then it says online RSVP opens soon):
+ *   1. Create a Google Form with four questions: "Name" (short answer), "Will you attend?"
+ *      (multiple choice with exactly "Joyfully accept" and "Regretfully decline"),
+ *      "Number of guests" (short answer), and "Message" (paragraph).
+ *   2. In the form's ⋮ menu choose "Get pre-filled link", type anything in each question,
+ *      and click "Get link". The link looks like
+ *      https://docs.google.com/forms/d/e/<formId>/viewform?...&entry.111=...&entry.222=...
+ *   3. Copy <formId> and each question's entry.<number> into `rsvp.googleForm` below.
  */
+
+import type { GoogleFormConfig } from "./lib/rsvp";
 
 export type StoryBeat = { title: string; text: string };
 
@@ -28,7 +36,7 @@ export type Wedding = {
   couple: { first: string; second: string; monogram: [string, string] };
   date: { display: string; iso: string };
   hashtag: string;
-  rsvp: { formUrl: string; deadline: string };
+  rsvp: { deadline: string; googleForm: GoogleFormConfig };
   story: StoryBeat[];
   events: WeddingEvent[];
   entourage: EntourageGroup[];
@@ -38,9 +46,15 @@ export type Wedding = {
 export const wedding: Wedding = {
   siteUrl: "http://localhost:3000",
   couple: { first: "Rosher", second: "Genesis", monogram: ["R", "G"] },
-  date: { display: "December 12, 2026", iso: "2026-12-12" },
+  date: { display: "May 9, 2027", iso: "2027-05-09" },
   hashtag: "#RosherAndGenesis",
-  rsvp: { formUrl: "", deadline: "November 12, 2026" },
+  rsvp: {
+    deadline: "April 9, 2027",
+    googleForm: {
+      formId: "",
+      fields: { name: "", attending: "", guests: "", message: "" },
+    },
+  },
   story: [
     {
       title: "How we met",

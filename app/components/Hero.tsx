@@ -8,10 +8,9 @@ type HeroProps = {
   names: string;
   dateDisplay: string;
   dateIso: string;
-  formUrl: string;
 };
 
-export function Hero({ backgroundSrc, names, dateDisplay, dateIso, formUrl }: HeroProps) {
+export function Hero({ backgroundSrc, names, dateDisplay, dateIso }: HeroProps) {
   return (
     <section
       id="top"
@@ -25,12 +24,12 @@ export function Hero({ backgroundSrc, names, dateDisplay, dateIso, formUrl }: He
           sizes="100vw"
           loading="eager"
           fetchPriority="high"
-          className="-z-20 object-cover object-[center_40%]"
+          className="-z-20 object-cover object-[center_30%]"
         />
       )}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-linear-to-b from-cream/35 via-cream/55 to-cream/35"
+        className="absolute inset-0 -z-10 bg-linear-to-b from-cream/25 via-cream/45 to-cream/30"
       />
 
       <div className="flex flex-1 flex-col items-center justify-center [text-shadow:0_0_1.25rem_var(--color-cream)]">
@@ -42,7 +41,7 @@ export function Hero({ backgroundSrc, names, dateDisplay, dateIso, formUrl }: He
         <p className="mt-4 text-2xl tracking-wide sm:text-3xl">
           <time dateTime={dateIso}>{dateDisplay}</time>
         </p>
-        <RsvpButton formUrl={formUrl} className="mt-12 [text-shadow:none]" />
+        <RsvpButton className="mt-12 [text-shadow:none]" />
       </div>
 
       <a href="#story" className="mt-12 flex flex-col items-center gap-1 text-lg italic">
