@@ -8,6 +8,7 @@ import {
   type GoogleFormConfig,
   type RsvpAnswers,
 } from "../lib/rsvp";
+import { FloralDivider } from "./Florals";
 import { CloseIcon } from "./icons";
 
 type Status =
@@ -94,6 +95,7 @@ export function RsvpDialog({ ref, form, deadline }: RsvpDialogProps) {
             <h2 id="rsvp-dialog-title" className="font-script text-5xl">
               Thank you!
             </h2>
+            <FloralDivider idPrefix="rsvp-thanks-divider" className="mx-auto mt-1 w-44" />
             <p className="mt-4 text-xl">
               {status.answers.attending === "yes"
                 ? `We can't wait to celebrate with you, ${firstName(status.answers.name)}.`
@@ -108,7 +110,8 @@ export function RsvpDialog({ ref, form, deadline }: RsvpDialogProps) {
             <h2 id="rsvp-dialog-title" className="text-center font-script text-5xl">
               RSVP
             </h2>
-            <p className="mt-2 text-center text-taupe-soft italic">Kindly respond by {deadline}</p>
+            <FloralDivider idPrefix="rsvp-form-divider" className="mx-auto mt-1 w-44" />
+            <p className="mt-1 text-center text-taupe-soft italic">Kindly respond by {deadline}</p>
 
             <label className="mt-8 block">
               <span className="font-medium">Your name</span>

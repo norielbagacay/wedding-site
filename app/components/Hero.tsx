@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FloralCorner } from "./Florals";
 import { ChevronDownIcon } from "./icons";
 import { RsvpButton } from "./RsvpButton";
 
@@ -30,6 +31,14 @@ export function Hero({ backgroundSrc, names, dateDisplay, dateIso }: HeroProps) 
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-linear-to-b from-cream/25 via-cream/45 to-cream/30"
+      />
+      <FloralCorner
+        idPrefix="hero-tr"
+        className="pointer-events-none absolute -top-4 -right-6 w-[clamp(8rem,24vw,16rem)] -scale-x-100"
+      />
+      <FloralCorner
+        idPrefix="hero-bl"
+        className="pointer-events-none absolute -bottom-6 -left-6 w-[clamp(8rem,24vw,16rem)] -scale-y-100"
       />
 
       <div className="flex flex-1 flex-col items-center justify-center [text-shadow:0_0_1.25rem_var(--color-cream)]">

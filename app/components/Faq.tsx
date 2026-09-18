@@ -4,7 +4,7 @@ import { Section } from "./Section";
 
 export function Faq({ faqs }: { faqs: FaqItem[] }) {
   return (
-    <Section id="details" title="Details & FAQ" tone="cream">
+    <Section id="details" title="Details & FAQ" tone="sand">
       <div className="mx-auto max-w-2xl divide-y divide-tan/20 border-y border-tan/20 text-left">
         {faqs.map(({ question, answer }) => (
           <details key={question} className="group py-5">

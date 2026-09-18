@@ -1,9 +1,10 @@
 import { Monogram } from "./Monogram";
-import { ClipboardIcon, ClockIcon, HeartIcon, InfoIcon, PeopleIcon } from "./icons";
+import { ClipboardIcon, ClockIcon, HangerIcon, HeartIcon, InfoIcon, PeopleIcon } from "./icons";
 
 const NAV = [
   { href: "#story", label: "Our Story", Icon: HeartIcon },
   { href: "#schedule", label: "Schedule", Icon: ClockIcon },
+  { href: "#attire", label: "Attire", Icon: HangerIcon },
   { href: "#entourage", label: "Entourage", Icon: PeopleIcon },
   { href: "#rsvp", label: "RSVP", Icon: ClipboardIcon },
   { href: "#details", label: "Details", Icon: InfoIcon },

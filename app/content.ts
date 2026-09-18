@@ -31,6 +31,14 @@ export type EntourageGroup = { group: string; names: string[] };
 
 export type FaqItem = { question: string; answer: string };
 
+export type DressCode = {
+  theme: string;
+  /** Motif colors shown as swatches; `color` is any CSS color. */
+  palette: { name: string; color: string }[];
+  guides: { who: string; text: string }[];
+  note: string;
+};
+
 export type Wedding = {
   siteUrl: string;
   couple: { first: string; second: string; monogram: [string, string] };
@@ -41,6 +49,7 @@ export type Wedding = {
   rsvp: { deadline: string; googleForm: GoogleFormConfig };
   story: StoryBeat[];
   events: WeddingEvent[];
+  attire: DressCode;
   entourage: EntourageGroup[];
   faqs: FaqItem[];
 };
@@ -91,6 +100,27 @@ export const wedding: Wedding = {
       mapUrl: "https://www.google.com/maps/search/?api=1&query=Sample+Garden+Pavilion",
     },
   ],
+  attire: {
+    theme: "Garden by the Sea",
+    palette: [
+      { name: "Dusty Rose", color: "#d9a39a" },
+      { name: "Peach", color: "#efc3a1" },
+      { name: "Sage", color: "#9fb08f" },
+      { name: "Champagne", color: "#e9d8bd" },
+      { name: "Taupe", color: "#a48660" },
+    ],
+    guides: [
+      {
+        who: "Gentlemen",
+        text: "Sample: long-sleeved polo or barong in cream or beige, with light-colored trousers.",
+      },
+      {
+        who: "Ladies",
+        text: "Sample: a long dress or cocktail dress in any of our motif colors.",
+      },
+    ],
+    note: "Kindly avoid wearing white, which is reserved for the bride.",
+  },
   entourage: [
     {
       group: "Principal Sponsors",
@@ -107,11 +137,6 @@ export const wedding: Wedding = {
     },
   ],
   faqs: [
-    {
-      question: "What should I wear?",
-      answer:
-        "Sample: formal attire in soft neutrals such as cream, beige, and sage. Please avoid white.",
-    },
     {
       question: "Can I bring a plus-one?",
       answer: "Sample: we can only accommodate the guests named on your invitation.",

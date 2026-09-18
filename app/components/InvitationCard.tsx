@@ -1,5 +1,5 @@
 import type { WeddingEvent } from "../content";
-import { Florals } from "./Florals";
+import { FloralCorner } from "./Florals";
 import styles from "./InvitationCard.module.css";
 
 type InvitationCardProps = {
@@ -26,8 +26,8 @@ export function InvitationCard({
 }: InvitationCardProps) {
   return (
     <div className={styles.card}>
-      <Florals idPrefix="card-top" className={`${styles.floral} ${styles.floralTop}`} />
-      <Florals idPrefix="card-bottom" className={`${styles.floral} ${styles.floralBottom}`} />
+      <FloralCorner idPrefix="card-top" className={`${styles.floral} ${styles.floralTop}`} />
+      <FloralCorner idPrefix="card-bottom" className={`${styles.floral} ${styles.floralBottom}`} />
 
       <p className={styles.opening}>{opening}</p>
       <p className={styles.names}>{names}</p>

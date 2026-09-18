@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { FloralDivider } from "./Florals";
 
 const TONES = { cream: "bg-cream", sand: "bg-sand" } as const;
 
@@ -18,7 +19,8 @@ export function Section({ id, title, subtitle, tone, children }: SectionProps) {
         <h2 id={headingId} className="font-script text-5xl sm:text-6xl">
           {title}
         </h2>
-        {subtitle && <p className="mt-3 text-xl text-taupe-soft italic">{subtitle}</p>}
+        <FloralDivider idPrefix={`${id}-divider`} className="mx-auto mt-2 w-44 sm:w-52" />
+        {subtitle && <p className="mt-2 text-xl text-taupe-soft italic">{subtitle}</p>}
         <div className="mt-12">{children}</div>
       </div>
     </section>

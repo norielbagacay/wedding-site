@@ -1,4 +1,5 @@
 import type { WeddingEvent } from "../content";
+import { FloralCorner } from "./Florals";
 import { ArrowRightIcon } from "./icons";
 import { Section } from "./Section";
 
@@ -7,12 +8,16 @@ type ScheduleProps = { events: WeddingEvent[]; dateDisplay: string };
 export function Schedule({ events, dateDisplay }: ScheduleProps) {
   return (
     <Section id="schedule" title="Schedule & Venue" subtitle={dateDisplay} tone="sand">
-      <ul className="grid gap-6 sm:grid-cols-2">
-        {events.map((event) => (
+      <ul className="grid gap-8 sm:grid-cols-2">
+        {events.map((event, i) => (
           <li
             key={event.name}
-            className="rounded-3xl border border-tan/20 bg-cream px-6 py-10 shadow-sm"
+            className="relative rounded-3xl border border-tan/20 bg-cream px-6 py-10 shadow-sm"
           >
+            <FloralCorner
+              idPrefix={`schedule-${i}`}
+              className={`pointer-events-none absolute -top-6 w-24 ${i % 2 ? "-right-6 -scale-x-100" : "-left-6"}`}
+            />
             <h3 className="font-script text-4xl text-tan">{event.name}</h3>
             <p className="mt-3 text-2xl font-medium">{event.time}</p>
             <p className="mt-5 font-semibold">{event.venue}</p>

@@ -104,3 +104,12 @@ export function CloseIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function HangerIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10 5.5a2 2 0 1 1 2 2v1.5" />
+      <path d="M12 9L3.4 15.3a1 1 0 0 0 .6 1.7h16a1 1 0 0 0 .6-1.7L12 9z" />
+    </Icon>
+  );
+}

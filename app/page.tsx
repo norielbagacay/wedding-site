@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { Attire } from "./components/Attire";
 import { Entourage } from "./components/Entourage";
 import { Envelope } from "./components/Envelope";
 import { Faq } from "./components/Faq";
@@ -47,6 +48,7 @@ export default function Home() {
           />
           <OurStory beats={wedding.story} />
           <Schedule events={wedding.events} dateDisplay={date.display} />
+          <Attire attire={wedding.attire} />
           <Entourage groups={wedding.entourage} />
           <Rsvp deadline={rsvp.deadline} />
           <Faq faqs={wedding.faqs} />

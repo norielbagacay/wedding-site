@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./Envelope.module.css";
-import { Florals } from "./Florals";
+import { FloralCorner } from "./Florals";
 
 /** Durations of the "opening" and "leaving" stages in Envelope.module.css. */
 const OPENING_MS = 1700;
@@ -95,10 +95,10 @@ export function Envelope({ backgroundSrc, monogram, names, dateDisplay, card, ch
                 {monogram[0]}
                 {monogram[1]}
               </span>
-              <Florals idPrefix="env-tl" className={`${styles.floral} ${styles.floralTopLeft}`} />
-              <Florals idPrefix="env-tr" className={`${styles.floral} ${styles.floralTopRight}`} />
-              <Florals idPrefix="env-bl" className={`${styles.floral} ${styles.floralBottomLeft}`} />
-              <Florals idPrefix="env-br" className={`${styles.floral} ${styles.floralBottomRight}`} />
+              <FloralCorner idPrefix="env-tl" className={`${styles.floral} ${styles.floralTopLeft}`} />
+              <FloralCorner idPrefix="env-tr" className={`${styles.floral} ${styles.floralTopRight}`} />
+              <FloralCorner idPrefix="env-bl" className={`${styles.floral} ${styles.floralBottomLeft}`} />
+              <FloralCorner idPrefix="env-br" className={`${styles.floral} ${styles.floralBottomRight}`} />
             </div>
 
             <button
