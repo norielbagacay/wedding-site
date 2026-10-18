@@ -37,6 +37,15 @@ export type DressCode = {
   note: string;
 };
 
+/** One way to send a gift, e.g. a bank account or an e-wallet. */
+export type GiftMethod = {
+  name: string;
+  accountName: string;
+  accountNumber: string;
+  /** Optional QR code image in public/, e.g. "/gifts/gcash-qr.png". */
+  qr?: string;
+};
+
 export type Wedding = {
   siteUrl: string;
   couple: { first: string; second: string };
@@ -46,6 +55,7 @@ export type Wedding = {
   welcome: { heading: string; message: string };
   rsvp: { by: string; googleForm: GoogleFormConfig };
   hashtag: string;
+  gifts: { message: string; methods: GiftMethod[] };
   events: WeddingEvent[];
   attire: DressCode;
   entourage: EntourageGroup[];
@@ -54,21 +64,29 @@ export type Wedding = {
 export const wedding: Wedding = {
   siteUrl: "https://genesis-and-rosher.vercel.app",
   couple: { first: "Genesis", second: "Rosher" },
-  date: { display: "April 18, 2027", iso: "2027-04-18" },
-  startsAt: "2027-04-18T15:00:00+08:00",
+  date: { display: "May 18, 2027", iso: "2027-05-18" },
+  startsAt: "2027-05-18T15:00:00+08:00",
   welcome: {
     heading: "With joyful hearts",
     message:
       "Together with our families, we invite you to share in the day our two lives become one. Having you with us would make our celebration complete.",
   },
   rsvp: {
-    by: "March 18, 2027",
+    by: "April 18, 2027",
     googleForm: {
       formId: "",
       fields: { name: "", attending: "", guests: "", message: "" },
     },
   },
   hashtag: "#GenesisAndRosher",
+  gifts: {
+    message:
+      "Your presence is the greatest gift of all. Should you wish to bless us further, a monetary gift toward our new home would be warmly appreciated.",
+    methods: [
+      { name: "GCash", accountName: "Sample Name", accountNumber: "0917 000 0000" },
+      { name: "BDO Savings", accountName: "Sample Name", accountNumber: "0000 0000 0000" },
+    ],
+  },
   events: [
     {
       name: "Ceremony",
@@ -129,6 +147,12 @@ export const wedding: Wedding = {
 };
 
 export const coupleNames = `${wedding.couple.first} & ${wedding.couple.second}`;
+
+/** e.g. "May", derived from `date.iso`; written over the hero, which shows the day and year. */
+export const month = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  timeZone: "UTC",
+});
 
 /** e.g. "Sunday", derived from `date.iso`. */
 export const weekday = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {

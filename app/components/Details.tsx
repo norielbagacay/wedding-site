@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { coupleNames, wedding, weekday } from "../content";
 import { Countdown } from "./Countdown";
 import { Divider } from "./Divider";
+import { GiftMethods } from "./GiftMethods";
 import { DinnerIcon, PinIcon, RingsIcon } from "./icons";
 import { RsvpForm } from "./RsvpForm";
 
@@ -43,7 +44,7 @@ function Section({ id, title, caps, subtitle, children }: SectionProps) {
 
 /** Everything below the hero, in the landing's ivory and gold, one flowing column. */
 export function Details() {
-  const { date, welcome, events, attire, entourage, rsvp } = wedding;
+  const { date, welcome, events, attire, entourage, gifts, rsvp } = wedding;
   return (
     <div className="bg-[radial-gradient(ellipse_at_top,#fdf7ee,transparent_60%),linear-gradient(#f8efe3,#f6ecdf)]">
       <Section id="details" title={welcome.heading}>
@@ -140,6 +141,13 @@ export function Details() {
               </ul>
             </div>
           ))}
+        </div>
+      </Section>
+
+      <Section id="gifts" title="Gift Guide">
+        <p className="mx-auto max-w-md text-[1.35rem] leading-relaxed">{gifts.message}</p>
+        <div className="mt-10">
+          <GiftMethods methods={gifts.methods} />
         </div>
       </Section>
 

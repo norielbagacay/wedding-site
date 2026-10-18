@@ -1,11 +1,11 @@
 import { Details } from "./components/Details";
 import { MusicBox } from "./components/MusicBox";
-import { coupleNames } from "./content";
+import { coupleNames, month } from "./content";
 
 export default function Home() {
   return (
     <main>
-      <MusicBox names={coupleNames}>
+      <MusicBox names={coupleNames} heroMonth={month}>
         <Details />
       </MusicBox>
     </main>

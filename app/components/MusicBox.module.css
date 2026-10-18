@@ -497,6 +497,22 @@
   mask-composite: intersect;
 }
 
+/* The month, in the gap left for it between the gold lines left of the painted
+   "18" (centered on 611, 405; the original month was erased from hero.jpg). */
+.heroMonth {
+  position: absolute;
+  top: 36.82%;
+  left: 42.76%;
+  padding-left: 0.32em;
+  translate: -50% -50%;
+  color: #86663f;
+  font-size: calc(var(--h) * 0.0195);
+  letter-spacing: 0.32em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 /* Over the painted "Scroll ⌄" (around 718, 1015). */
 .heroScroll {
   position: absolute;

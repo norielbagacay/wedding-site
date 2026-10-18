@@ -86,3 +86,13 @@ export function PinIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function GiftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="9" width="17" height="11.5" rx="1" />
+      <path d="M2.5 9h19v-2.5h-19zM12 6.5v14" />
+      <path d="M12 6.5C10.5 3.5 7 3 7 5s3 1.5 5 1.5zM12 6.5c1.5-3 5-3.5 5-1.5s-3 1.5-5 1.5z" />
+    </Icon>
+  );
+}

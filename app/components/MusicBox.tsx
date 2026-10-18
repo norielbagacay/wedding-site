@@ -69,12 +69,14 @@ const SPARKLES: [number, number, number, number][] = [
 
 type MusicBoxProps = {
   names: string;
+  /** The wedding month, written on the hero beside its painted day and year. */
+  heroMonth: string;
   /** The wedding details, unlocked for scrolling once the box has played. */
   children: ReactNode;
 };
 
 /** The front page: a music box that opens, like a real one, when tapped. */
-export function MusicBox({ names, children }: MusicBoxProps) {
+export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
   const [stage, setStage] = useState<Stage>("closed");
   const [muted, setMuted] = useState(false);
   const music = useRef<Music | null>(null);
@@ -257,6 +259,9 @@ export function MusicBox({ names, children }: MusicBoxProps) {
           <div className={styles.heroBackdrop} aria-hidden="true" />
           <div className={styles.heroStage}>
             <Image src={hero} alt="" unoptimized loading="eager" className={styles.heroImage} />
+            <span className={styles.heroMonth} aria-hidden="true">
+              {heroMonth}
+            </span>
             <a href="#details" className={styles.heroScroll} aria-label="Scroll to the details" />
           </div>
         </div>
