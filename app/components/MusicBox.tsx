@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { startMusicBox, type MusicBoxPlayer } from "../lib/musicBox";
+import { createMusic, type Music } from "../lib/music";
 import { Divider } from "./Divider";
 import { MusicIcon, MusicOffIcon } from "./icons";
 import styles from "./MusicBox.module.css";
@@ -16,6 +16,9 @@ import room from "../../public/box/room.jpg";
 
 /** The lid swings for this long, after a short press of the play button. */
 const LID_DELAY_MS = 200;
+
+/** The song that plays, looped, once the box is opened. */
+const MUSIC_SRC = "/music.mp3";
 const LID_MS = 2600;
 /** …then it eases back a few degrees against its hinge stay and comes to rest. */
 const SETTLE_MS = 700;
@@ -73,9 +76,8 @@ type MusicBoxProps = {
 /** The front page: a music box that opens, like a real one, when tapped. */
 export function MusicBox({ names, children }: MusicBoxProps) {
   const [stage, setStage] = useState<Stage>("closed");
-  const [hasMusic, setHasMusic] = useState(false);
   const [muted, setMuted] = useState(false);
-  const player = useRef<MusicBoxPlayer | null>(null);
+  const music = useRef<Music | null>(null);
   const musicRef = useRef<HTMLButtonElement>(null);
   const lidRef = useRef<HTMLDivElement>(null);
   const outsideRef = useRef<HTMLDivElement>(null);
@@ -86,7 +88,9 @@ export function MusicBox({ names, children }: MusicBoxProps) {
     // Always greet guests with the closed box, even after a reload halfway down the page.
     history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
-    return () => player.current?.stop();
+    const song = createMusic(MUSIC_SRC);
+    music.current = song;
+    return () => song.stop();
   }, []);
 
   // Let the open box play for a moment, move in toward the couple, then unlock the page.
@@ -154,18 +158,17 @@ export function MusicBox({ names, children }: MusicBoxProps) {
     if (stage !== "closed" && document.activeElement === document.body) {
       musicRef.current?.focus({ preventScroll: true });
     }
-  }, [stage, hasMusic]);
+  }, [stage]);
 
   function openBox() {
     if (stage !== "closed") return;
-    player.current = startMusicBox();
-    setHasMusic(player.current !== null);
+    music.current?.play();
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setStage(still ? "done" : "opening");
   }
 
   function toggleMusic() {
-    player.current?.setMuted(!muted);
+    music.current?.setMuted(!muted);
     setMuted(!muted);
   }
 
@@ -261,7 +264,7 @@ export function MusicBox({ names, children }: MusicBoxProps) {
         <div className={styles.whiteout} aria-hidden="true" />
       </div>
 
-      {hasMusic && (
+      {stage !== "closed" && (
         <button
           ref={musicRef}
           type="button"
