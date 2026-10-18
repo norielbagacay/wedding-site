@@ -116,7 +116,7 @@
 /* On the satin, below the box. */
 .hint {
   position: absolute;
-  top: calc(var(--u) * 1138);
+  top: calc(var(--u) * 1108);
   right: 0;
   left: 0;
   color: #74522e;
@@ -142,12 +142,15 @@
 
 /* The music box rig, in the pixels of design-sources/Ornate Ivory Rococo Music Boxes.png
    (--b, 1774 × 887): the open box there has its feet at y = 845 and is centered on
-   x = 1345, which lands at scene (615, 1105). Pieces sit at their source pixels. */
+   x = 1345, which lands at scene (615, 1075) at 0.52 scale: top = 1075 - 845 × 0.52,
+   left = 615 - 1345 × 0.52. At that size the closed box (scene x 404–833) stands
+   inside the arch's gold frame (x 383–866) with room either side, even on phones.
+   Pieces sit at their source pixels. */
 .box {
-  --b: calc(var(--u) * 0.78);
+  --b: calc(var(--u) * 0.52);
   position: absolute;
-  top: calc(var(--u) * 446);
-  left: calc(var(--u) * -434);
+  top: calc(var(--u) * 635.6);
+  left: calc(var(--u) * -84.4);
   width: calc(var(--b) * 1774);
   height: calc(var(--b) * 887);
   perspective: calc(var(--b) * 2200);
@@ -388,13 +391,13 @@
   animation: pulse 2.2s ease-out infinite;
 }
 
-/* The closed box and "Tap to open" below it, scene y 735–1170. */
+/* The closed box and "Tap to open" below it, scene x 401–836, y 822–1140. */
 .hotspot {
   position: absolute;
-  top: 58.6%;
-  left: 24.9%;
-  width: 50.7%;
-  height: 34.7%;
+  top: 65.6%;
+  left: 32%;
+  width: 34.7%;
+  height: 25.4%;
   cursor: pointer;
   border-radius: 1.5rem;
 }
@@ -553,7 +556,7 @@
 
 /* After a moment, move in toward the couple. */
 .front:is([data-stage="zoom"], [data-stage="done"]) .scene {
-  transform: scale(1.65);
+  transform: scale(2.35);
   transition-duration: 2.4s;
 }
 
