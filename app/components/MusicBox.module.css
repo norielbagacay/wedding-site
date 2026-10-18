@@ -1,0 +1,687 @@
+/* The empty room (public/box/room.jpg, 1254 × 1254) is the scene: a square of 1254
+   "units" (--u), so its pixel (x, y) is at (x / 12.54 %, y / 12.54 %). The music box
+   on it is assembled from pieces of "Ornate Ivory Rococo Music Boxes.png": the
+   closed box's lid on the open box's body and lining (see .box).
+
+   Opening (see MusicBox.tsx; modeled on the reference video):
+     0–400      the play button is pressed and fades, the text fades
+     0–4700     the view drifts gently in toward the box
+     200–2800   the lid swings up on its back hinge (driven frame by frame, so the
+                couple is uncovered exactly as far as the lid's edge has risen);
+                light sweeps across its mirror, and it settles against the hinge
+                by 3500
+     400+       light spills out of the box; the couple turns on the platform
+     3500+      golden rings and sparkles fade in; the mirror glints now and then
+     6500–8900  the view moves in on the couple, the names fade, then all goes white
+     8900+      the hero (public/box/hero.jpg) appears as the white clears; the page
+                below unlocks */
+
+/* Keep the page still until the box has played. */
+:global(html):has(.front:not([data-stage="done"])) {
+  overflow: hidden;
+}
+
+.front {
+  /* Fill the screen's height; on phones, crop the sides but never the names. */
+  --s: min(100vh, 170vw);
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: #f6e9da;
+}
+
+@supports (height: 100svh) {
+  .front {
+    --s: min(100svh, 170vw);
+    height: 100svh;
+  }
+}
+
+/* ── Room ────────────────────────────────────────── */
+
+/* The room blurred, to fill whatever the square leaves uncovered. */
+.backdrop {
+  position: absolute;
+  inset: -3rem;
+  background: var(--room) center / cover;
+  filter: blur(24px);
+}
+
+.scene {
+  --u: calc(var(--s) / 1254);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  transform-origin: 49.8% 72%;
+  transition: transform 4.5s cubic-bezier(0.45, 0, 0.25, 1);
+}
+
+.room.room {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  --fade:
+    linear-gradient(to right, #0000, #000 4% 96%, #0000),
+    linear-gradient(to bottom, #0000, #000 4% 96%, #0000);
+  -webkit-mask: var(--fade);
+  -webkit-mask-composite: source-in;
+  mask: var(--fade);
+  mask-composite: intersect;
+}
+
+/* ── Words ───────────────────────────────────────── */
+
+.title,
+.divider {
+  transition: opacity 800ms ease;
+}
+
+.title {
+  position: absolute;
+  top: calc(var(--u) * 256);
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 400;
+}
+
+.kicker {
+  color: #8a6440;
+  font-size: calc(var(--u) * 25);
+  letter-spacing: 0.42em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.names {
+  margin-top: calc(var(--u) * 14);
+  padding: 0 0.25em;
+  background: linear-gradient(100deg, #8d6635, #c99a55 45%, #9a7340);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--font-great-vibes), cursive;
+  font-size: calc(var(--u) * 100);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* On the satin, below the box. */
+.hint {
+  position: absolute;
+  top: calc(var(--u) * 1138);
+  right: 0;
+  left: 0;
+  color: #74522e;
+  font-weight: 600;
+  text-align: center;
+  font-size: calc(var(--u) * 23);
+  letter-spacing: 0.3em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: opacity 800ms ease;
+}
+
+/* Under the names. */
+.divider {
+  position: absolute;
+  top: calc(var(--u) * 416);
+  left: calc(50% - var(--u) * 120);
+  width: calc(var(--u) * 240);
+  color: #b0884f;
+}
+
+/* ── The box ─────────────────────────────────────── */
+
+/* The music box rig, in the pixels of public/box/Ornate Ivory Rococo Music Boxes.png
+   (--b, 1774 × 887): the open box there has its feet at y = 845 and is centered on
+   x = 1345, which lands at scene (615, 1105). Pieces sit at their source pixels. */
+.box {
+  --b: calc(var(--u) * 0.78);
+  position: absolute;
+  top: calc(var(--u) * 446);
+  left: calc(var(--u) * -434);
+  width: calc(var(--b) * 1774);
+  height: calc(var(--b) * 887);
+  perspective: calc(var(--b) * 2200);
+  perspective-origin: 75.8% 50.7%;
+}
+
+.box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.shadow {
+  position: absolute;
+  top: calc(var(--b) * 815);
+  left: calc(var(--b) * 900);
+  width: calc(var(--b) * 890);
+  height: calc(var(--b) * 70);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(110 80 50 / 0.45), #0000);
+  filter: blur(calc(var(--b) * 8));
+}
+
+/* The open box below its lid: rim, velvet interior with the platform, front and feet. */
+.box .body {
+  position: absolute;
+  top: calc(var(--b) * 444);
+  left: calc(var(--b) * 930);
+  width: calc(var(--b) * 844);
+  height: calc(var(--b) * 436);
+}
+
+/* The hinge line along the box's back edge, y = 448. */
+.lid {
+  position: absolute;
+  top: calc(var(--b) * 448);
+  left: calc(var(--b) * 930);
+  width: calc(var(--b) * 844);
+  height: 0;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+/* The closed box's lid, scaled (0.975) so its lower edge sits on the open box's rim. */
+.lidOutside {
+  top: calc(var(--b) * -79.5);
+  left: calc(var(--b) * 20.1);
+  width: calc(var(--b) * 784.9);
+  height: calc(var(--b) * 256.4);
+}
+
+/* The open box's lining (x 1005–1705, y 12–452). It starts below the hinge, upside
+   down and facing away, so that a half turn of the lid stands it upright. */
+.lidInside {
+  top: calc(var(--b) * -4);
+  left: calc(var(--b) * 75);
+  width: calc(var(--b) * 700);
+  height: calc(var(--b) * 440);
+  transform: rotateX(180deg);
+}
+
+/* The glass inside the lining's oval frame (x 1141–1570, y 132–388 in the box image;
+   the lining is cropped from 1005, 12). */
+.mirror {
+  position: absolute;
+  top: 28.18%;
+  left: 20.07%;
+  width: 60%;
+  height: 56.36%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 38% 32%, #fdfbf7, #e2dbd0 55%, #c7bcad);
+  box-shadow:
+    inset 0 0 calc(var(--b) * 16) rgb(90 70 50 / 0.35),
+    inset 0 calc(var(--b) * 4) calc(var(--b) * 6) rgb(90 70 50 / 0.25);
+}
+
+/* The room behind the viewer, softly, as a mirror would show it. */
+.mirrorRoom {
+  position: absolute;
+  inset: -12%;
+  opacity: 0.3;
+  background: var(--room) center 35% / cover;
+  filter: blur(3px);
+  transform: scaleX(-1);
+}
+
+/* The couple, reversed left to right and a little further away, peeking out above
+   the bride's head; it turns with them (see .couple). */
+.reflection {
+  position: absolute;
+  top: 1.6%;
+  left: 11.4%;
+  width: 46.2%;
+  height: 88.7%;
+  opacity: 0.6;
+  filter: blur(0.6px) sepia(0.15);
+  transform: scaleX(-1);
+  perspective: calc(var(--b) * 1200);
+}
+
+.reflection img {
+  transform-origin: 50% 97%;
+}
+
+/* A streak of light across the glass: swept by the lid as it opens (--sweep, set in
+   MusicBox.tsx), then glinting now and then. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      110deg,
+      #0000 40%,
+      rgb(255 255 255 / 0.75) 49%,
+      rgb(255 255 255 / 0.9) 50%,
+      rgb(255 255 255 / 0.75) 51%,
+      #0000 60%
+    )
+    calc(var(--sweep, 1) * 100%) 0 / 250% 100% no-repeat;
+  mix-blend-mode: screen;
+}
+
+.light {
+  position: absolute;
+  top: calc(var(--b) * 340);
+  left: calc(var(--b) * 965);
+  width: calc(var(--b) * 760);
+  height: calc(var(--b) * 360);
+  opacity: 0;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 70%,
+    rgb(255 246 222 / 0.85),
+    rgb(255 232 190 / 0.35) 45%,
+    #0000 72%
+  );
+  mix-blend-mode: screen;
+  transition: opacity 1.2s ease 400ms;
+}
+
+/* Shows the couple only below the lid's (softened) edge while it lifts (see MusicBox.tsx);
+   its bottom is the box's front rim, y = 600. */
+.coupleWell {
+  position: absolute;
+  top: calc(var(--b) * 60);
+  left: calc(var(--b) * 1000);
+  width: calc(var(--b) * 700);
+  height: calc(var(--b) * 540);
+  -webkit-mask-image: linear-gradient(#0000, #0000);
+  mask-image: linear-gradient(#0000, #0000);
+  perspective: calc(var(--b) * 1200);
+}
+
+/* Standing on the platform, feet at (1345, 565). */
+.couple {
+  position: absolute;
+  top: calc(var(--b) * 105);
+  left: calc(var(--b) * 169);
+  width: calc(var(--b) * 352);
+  height: calc(var(--b) * 400);
+  transform-origin: 50% 97%;
+}
+
+/* Light circling the couple, like the open design. */
+.ring {
+  --spin: 0deg;
+  position: absolute;
+  padding: calc(var(--b) * 3);
+  opacity: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from var(--spin),
+    #0000 0 55%,
+    rgb(255 220 150 / 0.5) 72%,
+    #fffaf0 82%,
+    rgb(255 220 150 / 0.5) 88%,
+    #0000 95%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 calc(var(--b) * 8) rgb(255 205 120 / 0.9));
+  transition: opacity 1.6s ease;
+}
+
+.ringLow {
+  top: calc(var(--b) * 490);
+  left: calc(var(--b) * 1045);
+  width: calc(var(--b) * 600);
+  height: calc(var(--b) * 140);
+}
+
+.ringHigh {
+  top: calc(var(--b) * 380);
+  left: calc(var(--b) * 1135);
+  width: calc(var(--b) * 420);
+  height: calc(var(--b) * 80);
+}
+
+.sparkles span {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  opacity: 0;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  background: radial-gradient(circle, #fff, #f1cf8c 70%);
+}
+
+/* The play button from the landing design, on the front of the box (1342, 730). */
+.play {
+  position: absolute;
+  top: calc(var(--b) * 665);
+  left: calc(var(--b) * 1277);
+  width: calc(var(--b) * 130);
+  height: calc(var(--b) * 130);
+  border-radius: 50%;
+  transition:
+    opacity 600ms ease 150ms,
+    scale 300ms ease;
+}
+
+/* An inviting ring while it waits to be tapped. */
+.play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgb(255 246 228 / 0.95);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgb(201 154 85 / 0.8);
+  animation: pulse 2.2s ease-out infinite;
+}
+
+/* The closed box and "Tap to open" below it, scene y 735–1170. */
+.hotspot {
+  position: absolute;
+  top: 58.6%;
+  left: 24.9%;
+  width: 50.7%;
+  height: 34.7%;
+  cursor: pointer;
+  border-radius: 1.5rem;
+}
+
+.front:has(.hotspot:hover) .play {
+  scale: 1.04;
+}
+
+.hotspot:focus-visible {
+  outline: 3px solid #8d704c;
+  outline-offset: 4px;
+}
+
+.music {
+  position: fixed;
+  z-index: 40;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  cursor: pointer;
+  border: 1px solid rgb(164 134 96 / 0.45);
+  border-radius: 50%;
+  background: rgb(255 250 242 / 0.92);
+  box-shadow: 0 6px 16px -6px rgb(80 60 40 / 0.4);
+  color: #8d704c;
+  animation: fadeIn 600ms ease 2400ms both;
+}
+
+.music:focus-visible {
+  outline: 2px solid #8d704c;
+  outline-offset: 3px;
+}
+
+/* ── After the box ───────────────────────────────── */
+
+/* Warm white the zoom fades into, and out of which the hero appears. */
+.whiteout {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  opacity: 0;
+  background: #fffaf3;
+  pointer-events: none;
+  transition: opacity 1.2s ease-out;
+}
+
+/* public/box/hero.jpg (1429 × 1100): fills the screen's height, cropped on phones to
+   no less than x 434–994 (the names and the couple), the rest filled by a blurred copy. */
+.hero {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  background: #f6ebdd;
+}
+
+.heroBackdrop {
+  position: absolute;
+  inset: -3rem;
+  background: var(--hero) center / cover;
+  filter: blur(24px);
+}
+
+.heroStage {
+  --h: min(100vh, 196vw);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--h) * 1.299);
+  height: var(--h);
+  translate: -50% -50%;
+}
+
+@supports (height: 100svh) {
+  .heroStage {
+    --h: min(100svh, 196vw);
+  }
+}
+
+.heroStage .heroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  --fade:
+    linear-gradient(to right, #0000, #000 4% 96%, #0000),
+    linear-gradient(to bottom, #0000, #000 4% 96%, #0000);
+  -webkit-mask: var(--fade);
+  -webkit-mask-composite: source-in;
+  mask: var(--fade);
+  mask-composite: intersect;
+}
+
+/* Over the painted "Scroll ⌄" (around 718, 1015). */
+.heroScroll {
+  position: absolute;
+  top: 88.6%;
+  left: 45.2%;
+  width: 9.2%;
+  height: 7.4%;
+  border-radius: 999px;
+}
+
+.heroScroll:focus-visible {
+  outline: 2px solid #8d704c;
+  outline-offset: 3px;
+}
+
+.musicIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* ── Opening and open ────────────────────────────── */
+
+.front:not([data-stage="closed"]) .hint {
+  opacity: 0;
+}
+
+.front:not([data-stage="closed"]) .play {
+  opacity: 0;
+  scale: 0.9;
+}
+
+.front:not([data-stage="closed"]) .play::after {
+  animation: none;
+  opacity: 0;
+}
+
+.front:not([data-stage="closed"]) .light {
+  opacity: 1;
+}
+
+.front:not([data-stage="closed"]) :is(.couple, .reflection img) {
+  animation: turn 6s ease-in-out 600ms infinite;
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .lid {
+  transform: rotateX(180deg);
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .coupleWell {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.front:not([data-stage="closed"]) .scene {
+  transform: scale(1.12);
+}
+
+/* After a moment, move in toward the couple. */
+.front:is([data-stage="zoom"], [data-stage="done"]) .scene {
+  transform: scale(1.65);
+  transition-duration: 2.4s;
+}
+
+.front:is([data-stage="zoom"], [data-stage="done"]) :is(.title, .divider) {
+  opacity: 0;
+}
+
+/* The last part of the zoom fades to white… */
+.front[data-stage="zoom"] .whiteout {
+  opacity: 1;
+  transition: opacity 1s ease-in 1.4s;
+}
+
+/* …and the hero is there when the white clears. */
+.front[data-stage="done"] .hero {
+  opacity: 1;
+  visibility: visible;
+}
+
+.front[data-stage="done"] .heroImage {
+  animation: settle 6s cubic-bezier(0.2, 0.6, 0.3, 1) both;
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .sheen {
+  animation: glint 8s ease-in-out 1.5s infinite;
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .ring {
+  opacity: 1;
+  animation: spin 3.2s linear infinite;
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .ringHigh {
+  animation-duration: 2.4s;
+  animation-direction: reverse;
+}
+
+.front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .sparkles span {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────── */
+
+@property --spin {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes spin {
+  to {
+    --spin: 360deg;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The hero eases back from slightly close, continuing the zoom. */
+@keyframes settle {
+  from {
+    scale: 1.06;
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.95;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+
+/* The platform turning the couple a little each way. */
+@keyframes turn {
+  /* Starts and ends facing front, so the dance begins without a jump. */
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+  25% {
+    transform: rotateY(-22deg);
+  }
+  75% {
+    transform: rotateY(22deg);
+  }
+}
+
+@keyframes glint {
+  0%,
+  75% {
+    background-position-x: 100%;
+  }
+  100% {
+    background-position-x: 0%;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    scale: 0.3;
+  }
+  50% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .front *,
+  .front *::before,
+  .front *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sparkles {
+    display: none;
+  }
+}

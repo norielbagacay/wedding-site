@@ -17,15 +17,20 @@ test("siteUrl is an absolute http(s) URL", () => {
   assert.match(new URL(wedding.siteUrl).protocol, /^https?:$/);
 });
 
+test("every event has an https map link", () => {
+  for (const event of wedding.events) {
+    assert.equal(new URL(event.mapUrl).protocol, "https:", event.name);
+  }
+});
+
+test("the countdown runs to the wedding day", () => {
+  assert.equal(wedding.startsAt.slice(0, 10), wedding.date.iso);
+  assert.ok(!Number.isNaN(Date.parse(wedding.startsAt)), "startsAt must be a valid date-time");
+});
+
 test("the RSVP Google Form is either not set up yet or fully set up", () => {
   const form = wedding.rsvp.googleForm;
   if (form.formId.trim()) {
     assert.ok(isGoogleFormReady(form), "each question needs its entry.<number> id");
-  }
-});
-
-test("every event has an https map link", () => {
-  for (const event of wedding.events) {
-    assert.equal(new URL(event.mapUrl).protocol, "https:", event.name);
   }
 });

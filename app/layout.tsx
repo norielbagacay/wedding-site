@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(wedding.siteUrl),
   title,
   description,
-  openGraph: { title, description, type: "website", images: ["/bg.jpg"] },
-  twitter: { card: "summary_large_image", title, description, images: ["/bg.jpg"] },
+  openGraph: { title, description, type: "website", images: ["/music-box.jpg"] },
+  twitter: { card: "summary_large_image", title, description, images: ["/music-box.jpg"] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

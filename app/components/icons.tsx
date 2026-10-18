@@ -21,59 +21,23 @@ function Icon({ children, ...props }: IconProps) {
   );
 }
 
-export function HeartIcon(props: IconProps) {
+export function MusicIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+      <path d="M9 18V5.5l11-2V16" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="17.5" cy="16" r="2.5" />
     </Icon>
   );
 }
 
-export function ClockIcon(props: IconProps) {
+export function MusicOffIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </Icon>
-  );
-}
-
-export function PeopleIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="8" r="3" />
-      <path d="M6 19v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1" />
-      <circle cx="5.5" cy="9.5" r="2" />
-      <path d="M2 17v-.5A2.5 2.5 0 0 1 4.5 14H6" />
-      <circle cx="18.5" cy="9.5" r="2" />
-      <path d="M22 17v-.5a2.5 2.5 0 0 0-2.5-2.5H18" />
-    </Icon>
-  );
-}
-
-export function ClipboardIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2" />
-      <rect x="9" y="2.5" width="6" height="3" rx="1" />
-      <path d="M9 11h6M9 15h4" />
-    </Icon>
-  );
-}
-
-export function InfoIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 11v5M12 8h.01" />
-    </Icon>
-  );
-}
-
-export function ArrowRightIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5 12h14M13 6l6 6-6 6" />
+      <path d="M9 18V5.5l11-2V16" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="17.5" cy="16" r="2.5" />
+      <path d="M3 3l18 18" />
     </Icon>
   );
 }
@@ -86,53 +50,39 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
-export function LeafIcon(props: IconProps) {
+export function ArrowRightIcon(props: IconProps) {
   return (
-    <Icon strokeWidth={1} {...props}>
-      <path d="M5 20C8 15 12 9 18 4" />
-      <path d="M8.3 15.2c-2-.2-3.3-1.5-3.5-3.5 2 .1 3.3 1.4 3.5 3.5z" />
-      <path d="M11 11.3c.3-2 1.7-3.1 3.7-3.1-.2 2-1.6 3.1-3.7 3.1z" />
-      <path d="M13.6 8.2c-1.8-.5-2.7-1.9-2.5-3.7 1.8.5 2.7 1.9 2.5 3.7z" />
+    <Icon {...props}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
     </Icon>
   );
 }
 
-export function FlowerIcon(props: IconProps) {
+export function RingsIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      {[0, 72, 144, 216, 288].map((angle) => (
-        <path
-          key={angle}
-          d="M12 11.2C8.6 8.8 8.8 3.6 12 3C15.2 3.6 15.4 8.8 12 11.2z"
-          transform={`rotate(${angle} 12 12)`}
-        />
-      ))}
-      <circle cx="12" cy="12" r="2" fill="currentColor" />
+      <circle cx="9" cy="14" r="5.5" />
+      <circle cx="15" cy="14" r="5.5" />
+      <path d="M13 5.5l2-2.5 2 2.5-2 2z" />
     </Icon>
   );
 }
 
-export function CloseIcon(props: IconProps) {
+export function DinnerIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M6 6l12 12M18 6L6 18" />
+      <circle cx="12" cy="13" r="5.5" />
+      <circle cx="12" cy="13" r="3" />
+      <path d="M3 5v4a1.5 1.5 0 0 0 3 0V5M4.5 9v10M20 5c-1.5 1-2 3-2 5h2v9" />
     </Icon>
   );
 }
 
-export function HangerIcon(props: IconProps) {
+export function PinIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M10 5.5a2 2 0 1 1 2 2v1.5" />
-      <path d="M12 9L3.4 15.3a1 1 0 0 0 .6 1.7h16a1 1 0 0 0 .6-1.7L12 9z" />
-    </Icon>
-  );
-}
-
-export function MenuIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M4 7h16M4 12h16M4 17h16" />
+      <path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z" />
+      <circle cx="12" cy="10" r="2.3" />
     </Icon>
   );
 }

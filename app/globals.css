@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
+/* Colors taken from the music-box design. */
 @theme {
-  --color-cream: #f8f3ec;
-  --color-sand: #efe6da;
-  --color-taupe: #6f5a48;
-  --color-taupe-soft: #76604f;
-  --color-tan: #a48660;
-  --color-tan-dark: #8d704c;
+  --color-cream: #f8f1e7;
+  --color-sand: #f1e4d2;
   --color-ivory: #fffaf2;
+  --color-taupe: #6f5a48;
+  --color-gold: #b98a4c;
+  --color-gold-dark: #7d5a2e;
 }
 
 @theme inline {
@@ -15,19 +15,10 @@
   --font-serif: var(--font-cormorant), Georgia, serif;
 }
 
-:root {
-  --header-h: 4rem;
-}
-
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
-}
-
-/* Keep section headings clear of the sticky header when jumping to an anchor. */
-section[id] {
-  scroll-margin-top: var(--header-h);
 }
 
 /* Fade sections up as they scroll into view. Browsers without scroll-driven
