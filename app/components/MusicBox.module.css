@@ -140,7 +140,7 @@
 
 /* ── The box ─────────────────────────────────────── */
 
-/* The music box rig, in the pixels of public/box/Ornate Ivory Rococo Music Boxes.png
+/* The music box rig, in the pixels of design-sources/Ornate Ivory Rococo Music Boxes.png
    (--b, 1774 × 887): the open box there has its feet at y = 845 and is centered on
    x = 1345, which lands at scene (615, 1105). Pieces sit at their source pixels. */
 .box {
