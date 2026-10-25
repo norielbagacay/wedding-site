@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createMusic, type Music } from "../lib/music";
-import { Divider } from "./Divider";
 import { MusicIcon, MusicOffIcon } from "./icons";
 import styles from "./MusicBox.module.css";
 import body from "../../public/box/body.webp";
@@ -11,8 +10,8 @@ import couple from "../../public/box/couple.webp";
 import lidClosed from "../../public/box/lid-closed.webp";
 import lidOpen from "../../public/box/lid-open.webp";
 import play from "../../public/box/play.webp";
-import hero from "../../public/box/hero.jpg";
-import room from "../../public/box/room.jpg";
+import hero from "../../public/box/hero.png";
+import room from "../../public/box/room.png";
 
 /** The lid swings for this long, after a short press of the play button. */
 const LID_DELAY_MS = 200;
@@ -187,10 +186,8 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
           <Image src={room} alt="" unoptimized preload placeholder="blur" className={styles.room} />
 
           <h1 className={styles.title}>
-            <span className={styles.kicker}>The wedding of</span>
-            <span className={styles.names}>{names}</span>
+            {names}
           </h1>
-          <Divider className={styles.divider} />
 
           <div className={styles.box} aria-hidden="true">
             <span className={styles.shadow} />
@@ -239,10 +236,6 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
               <Image src={play} alt="" unoptimized preload />
             </span>
           </div>
-
-          <p className={styles.hint} aria-hidden="true">
-            Tap to open
-          </p>
 
           {stage === "closed" && (
             <button

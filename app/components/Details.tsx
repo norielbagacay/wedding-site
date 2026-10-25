@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { coupleNames, wedding, weekday } from "../content";
 import { Countdown } from "./Countdown";
@@ -5,6 +6,7 @@ import { Divider } from "./Divider";
 import { GiftMethods } from "./GiftMethods";
 import { DinnerIcon, PinIcon, RingsIcon } from "./icons";
 import { RsvpForm } from "./RsvpForm";
+import styles from "./Details.module.css";
 
 const LABEL = "text-sm tracking-[0.3em] text-gold-dark uppercase";
 const SCRIPT = "font-script leading-tight text-gold-dark";
@@ -22,7 +24,7 @@ type SectionProps = {
 /** A heading with the gilt divider under it, then the section's content. */
 function Section({ id, title, caps, subtitle, children }: SectionProps) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="px-6 py-14 sm:py-20">
+    <section id={id} aria-labelledby={`${id}-title`} className={styles.frame}>
       <div className="reveal mx-auto max-w-3xl text-center">
         <h2
           id={`${id}-title`}
@@ -46,7 +48,7 @@ function Section({ id, title, caps, subtitle, children }: SectionProps) {
 export function Details() {
   const { date, welcome, events, attire, entourage, gifts, rsvp } = wedding;
   return (
-    <div className="bg-[radial-gradient(ellipse_at_top,#fdf7ee,transparent_60%),linear-gradient(#f8efe3,#f6ecdf)]">
+    <div className={styles.details}>
       <Section id="details" title={welcome.heading}>
         <p className="mx-auto max-w-md text-[1.35rem] leading-relaxed">{welcome.message}</p>
         <p className={`mt-10 ${LABEL}`}>{weekday}</p>
@@ -144,6 +146,41 @@ export function Details() {
         </div>
       </Section>
 
+      <Section id="photos" title="Snap & Share">
+        <p className="mx-auto max-w-md text-[1.35rem] leading-relaxed">
+          {wedding.photoSharing.message}
+        </p>
+        <ul className={styles.hashtags} aria-label="Our wedding hashtags">
+          {wedding.hashtags.map((hashtag) => <li key={hashtag}>{hashtag}</li>)}
+        </ul>
+        <figure className="mx-auto mt-10 max-w-xs">
+          <div className={styles.photoQr}>
+            {wedding.photoSharing.qrImage ? (
+              <Image
+                src={wedding.photoSharing.qrImage}
+                alt="Scan to upload your wedding photos"
+                width={224}
+                height={224}
+                unoptimized
+              />
+            ) : (
+              <Image
+                src="/photos/sample-upload-qr.svg"
+                alt="Sample QR code linking to our wedding site"
+                width={224}
+                height={224}
+                unoptimized
+              />
+            )}
+          </div>
+          <figcaption className="mt-4 text-lg leading-relaxed">
+            {wedding.photoSharing.qrImage
+              ? "Scan to share the moments you captured."
+              : "Photo uploads coming soon."}
+          </figcaption>
+        </figure>
+      </Section>
+
       <Section id="gifts" title="Gift Guide">
         <p className="mx-auto max-w-md text-[1.35rem] leading-relaxed">{gifts.message}</p>
         <div className="mt-10">
@@ -155,10 +192,12 @@ export function Details() {
         <RsvpForm form={rsvp.googleForm} />
       </Section>
 
-      <footer className="px-6 pt-14 pb-20 text-center">
+      <footer className={`${styles.frame} text-center`}>
         <p className="text-2xl italic">With love,</p>
         <p className={`${SCRIPT} mt-1 text-[clamp(2.75rem,11vw,3.75rem)]`}>{coupleNames}</p>
-        <p className="mt-2 text-lg text-gold-dark">{wedding.hashtag}</p>
+        <ul className={styles.hashtags} aria-label="Our wedding hashtags">
+          {wedding.hashtags.map((hashtag) => <li key={hashtag}>{hashtag}</li>)}
+        </ul>
       </footer>
     </div>
   );

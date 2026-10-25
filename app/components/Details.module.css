@@ -1,0 +1,53 @@
+.details {
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+  background: #fbf5eb;
+  /* Slice the artwork into a single frame around the entire details column. */
+  border-style: solid;
+  border-width: clamp(3.5rem, 10vw, 7rem) clamp(1.25rem, 4vw, 3rem);
+  border-image-source: url("/box/Elegant%20Gold%20Ornate%20Invitation%20Frame.png");
+  border-image-slice: 220 110 fill;
+  border-image-repeat: stretch;
+}
+
+/* Sections share the outer side borders, with no horizontal borders between them. */
+.frame {
+  width: 100%;
+  padding: clamp(2.5rem, 7vw, 5rem) clamp(1.25rem, 5vw, 4rem);
+}
+
+.hashtags {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  color: var(--color-gold-dark);
+  font-size: clamp(0.95rem, 3.8vw, 1.65rem);
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.hashtags li {
+  white-space: nowrap;
+}
+
+.photoQr {
+  display: grid;
+  place-items: center;
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  padding: 0.75rem;
+  border: 1px dashed var(--color-gold);
+  border-radius: 0.75rem;
+  background: rgb(128 128 128 / 14%);
+}
+
+.photoQr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

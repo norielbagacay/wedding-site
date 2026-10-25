@@ -54,7 +54,8 @@ export type Wedding = {
   startsAt: string;
   welcome: { heading: string; message: string };
   rsvp: { by: string; googleForm: GoogleFormConfig };
-  hashtag: string;
+  hashtags: string[];
+  photoSharing: { message: string; qrImage: string };
   gifts: { message: string; methods: GiftMethod[] };
   events: WeddingEvent[];
   attire: DressCode;
@@ -78,10 +79,16 @@ export const wedding: Wedding = {
       fields: { name: "", attending: "", guests: "", message: "" },
     },
   },
-  hashtag: "#GenesisAndRosher",
+  hashtags: ["#GENtlyROSHingIntoForever", "#GENuineLoveForROSH"],
+  photoSharing: {
+    message:
+      "After our unplugged ceremony, help us capture and share our precious moments using our official wedding hashtags.",
+    /** Add your photo upload QR image to public/ and enter its path, e.g. /photos/upload-qr.png. */
+    qrImage: "",
+  },
   gifts: {
     message:
-      "Your presence is the greatest gift of all. Should you wish to bless us further, a monetary gift toward our new home would be warmly appreciated.",
+      "The most important gift to us is your prayer and presence on our special day. But if you wish to bless us in some other way, we would love a monetary gift to put in our pot for our journey after tying the knot.",
     methods: [
       { name: "GCash", accountName: "Sample Name", accountNumber: "0917 000 0000" },
       { name: "BDO Savings", accountName: "Sample Name", accountNumber: "0000 0000 0000" },

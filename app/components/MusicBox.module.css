@@ -1,29 +1,11 @@
-/* The empty room (public/box/room.jpg, 1254 × 1254) is the scene: a square of 1254
-   "units" (--u), so its pixel (x, y) is at (x / 12.54 %, y / 12.54 %). The music box
-   on it is assembled from pieces of "Ornate Ivory Rococo Music Boxes.png": the
-   closed box's lid on the open box's body and lining (see .box).
-
-   Opening (see MusicBox.tsx; modeled on the reference video):
-     0–400      the play button is pressed and fades, the text fades
-     0–4700     the view drifts gently in toward the box
-     200–2800   the lid swings up on its back hinge (driven frame by frame, so the
-                couple is uncovered exactly as far as the lid's edge has risen);
-                light sweeps across its mirror, and it settles against the hinge
-                by 3500
-     400+       light spills out of the box; the couple turns on the platform
-     3500+      golden rings and sparkles fade in; the mirror glints now and then
-     6500–8900  the view moves in on the couple, the names fade, then all goes white
-     8900+      the hero (public/box/hero.jpg) appears as the white clears; the page
-                below unlocks */
-
 /* Keep the page still until the box has played. */
 :global(html):has(.front:not([data-stage="done"])) {
   overflow: hidden;
 }
 
 .front {
-  /* Fill the screen's height; on phones, crop the sides but never the names. */
-  --s: min(100vh, 170vw);
+  /* Fit the complete portrait image within the viewport. */
+  --s: min(100vw, calc(100vh * 941 / 1672));
   position: relative;
   height: 100vh;
   overflow: hidden;
@@ -32,19 +14,17 @@
 
 @supports (height: 100svh) {
   .front {
-    --s: min(100svh, 170vw);
+    --s: min(100vw, calc(100svh * 941 / 1672));
     height: 100svh;
   }
 }
 
 /* ── Room ────────────────────────────────────────── */
 
-/* The room blurred, to fill whatever the square leaves uncovered. */
 .backdrop {
   position: absolute;
-  inset: -3rem;
-  background: var(--room) center / cover;
-  filter: blur(24px);
+  inset: 0;
+  background: #f6e9da;
 }
 
 .scene {
@@ -53,10 +33,14 @@
   top: 50%;
   left: 50%;
   width: var(--s);
-  height: var(--s);
-  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
-  transform-origin: 49.8% 72%;
-  transition: transform 4.5s cubic-bezier(0.45, 0, 0.25, 1);
+  height: calc(var(--s) * 1672 / 941);
+  translate: -50% -50%;
+}
+
+/* A subtle fixed zoom keeps the artwork and interactive overlays aligned. */
+.scene,
+.heroStage {
+  scale: 1.05;
 }
 
 .room.room {
@@ -65,92 +49,27 @@
   width: 100%;
   height: 100%;
   max-width: none;
-  --fade:
-    linear-gradient(to right, #0000, #000 4% 96%, #0000),
-    linear-gradient(to bottom, #0000, #000 4% 96%, #0000);
-  -webkit-mask: var(--fade);
-  -webkit-mask-composite: source-in;
-  mask: var(--fade);
-  mask-composite: intersect;
+  object-fit: contain;
 }
 
-/* ── Words ───────────────────────────────────────── */
-
-.title,
-.divider {
-  transition: opacity 800ms ease;
-}
-
+/* The artwork supplies the visible names; retain a heading for screen readers. */
 .title {
   position: absolute;
-  top: calc(var(--u) * 256);
-  right: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-weight: 400;
-}
-
-.kicker {
-  color: #8a6440;
-  font-size: calc(var(--u) * 25);
-  letter-spacing: 0.42em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.names {
-  margin-top: calc(var(--u) * 14);
-  padding: 0 0.25em;
-  background: linear-gradient(100deg, #8d6635, #c99a55 45%, #9a7340);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-family: var(--font-great-vibes), cursive;
-  font-size: calc(var(--u) * 100);
-  line-height: 1.2;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
-/* On the satin, below the box. */
-.hint {
-  position: absolute;
-  top: calc(var(--u) * 1108);
-  right: 0;
-  left: 0;
-  color: #74522e;
-  font-weight: 600;
-  text-align: center;
-  font-size: calc(var(--u) * 23);
-  letter-spacing: 0.3em;
-  line-height: 1;
-  text-transform: uppercase;
-  transition: opacity 800ms ease;
-}
-
-/* Under the names. */
-.divider {
-  position: absolute;
-  top: calc(var(--u) * 416);
-  left: calc(50% - var(--u) * 120);
-  width: calc(var(--u) * 240);
-  color: #b0884f;
-}
-
-/* ── The box ─────────────────────────────────────── */
-
-/* The music box rig, in the pixels of design-sources/Ornate Ivory Rococo Music Boxes.png
-   (--b, 1774 × 887): the open box there has its feet at y = 845 and is centered on
-   x = 1345, which lands at scene (615, 1075) at 0.52 scale: top = 1075 - 845 × 0.52,
-   left = 615 - 1345 × 0.52. At that size the closed box (scene x 404–833) stands
-   inside the arch's gold frame (x 383–866) with room either side, even on phones.
-   Pieces sit at their source pixels. */
+/* Scale the assembled box together, centered on its body with its feet on the satin. */
 .box {
-  --b: calc(var(--u) * 0.52);
+  --b: calc(var(--u) * 0.78);
   position: absolute;
-  top: calc(var(--u) * 635.6);
-  left: calc(var(--u) * -84.4);
+  top: calc(90% - var(--b) * 880);
+  left: calc(50% - var(--b) * 1352);
   width: calc(var(--b) * 1774);
   height: calc(var(--b) * 887);
   perspective: calc(var(--b) * 2200);
@@ -394,10 +313,10 @@
 /* The closed box and "Tap to open" below it, scene x 401–836, y 822–1140. */
 .hotspot {
   position: absolute;
-  top: 65.6%;
-  left: 32%;
-  width: 34.7%;
-  height: 25.4%;
+  top: 71%;
+  left: 23%;
+  width: 54%;
+  height: 21%;
   cursor: pointer;
   border-radius: 1.5rem;
 }
@@ -447,8 +366,7 @@
   transition: opacity 1.2s ease-out;
 }
 
-/* public/box/hero.jpg (1429 × 1100): fills the screen's height, cropped on phones to
-   no less than x 434–994 (the names and the couple), the rest filled by a blurred copy. */
+/* Fit the complete portrait hero.png within the screen. */
 .hero {
   position: absolute;
   inset: 0;
@@ -461,24 +379,23 @@
 
 .heroBackdrop {
   position: absolute;
-  inset: -3rem;
-  background: var(--hero) center / cover;
-  filter: blur(24px);
+  inset: 0;
+  background: #f6ebdd;
 }
 
 .heroStage {
-  --h: min(100vh, 196vw);
+  --h: min(100vh, calc(100vw * 1672 / 941));
   position: absolute;
   top: 50%;
   left: 50%;
-  width: calc(var(--h) * 1.299);
+  width: calc(var(--h) * 941 / 1672);
   height: var(--h);
   translate: -50% -50%;
 }
 
 @supports (height: 100svh) {
   .heroStage {
-    --h: min(100svh, 196vw);
+    --h: min(100svh, calc(100vw * 1672 / 941));
   }
 }
 
@@ -488,29 +405,12 @@
   width: 100%;
   height: 100%;
   max-width: none;
-  --fade:
-    linear-gradient(to right, #0000, #000 4% 96%, #0000),
-    linear-gradient(to bottom, #0000, #000 4% 96%, #0000);
-  -webkit-mask: var(--fade);
-  -webkit-mask-composite: source-in;
-  mask: var(--fade);
-  mask-composite: intersect;
+  object-fit: contain;
 }
 
-/* The month, in the gap left for it between the gold lines left of the painted
-   "18" (centered on 611, 405; the original month was erased from hero.jpg). */
+/* The month is already printed in hero.png. */
 .heroMonth {
-  position: absolute;
-  top: 36.82%;
-  left: 42.76%;
-  padding-left: 0.32em;
-  translate: -50% -50%;
-  color: #86663f;
-  font-size: calc(var(--h) * 0.0195);
-  letter-spacing: 0.32em;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
+  display: none;
 }
 
 /* Over the painted "Scroll ⌄" (around 718, 1015). */
@@ -534,10 +434,6 @@
 }
 
 /* ── Opening and open ────────────────────────────── */
-
-.front:not([data-stage="closed"]) .hint {
-  opacity: 0;
-}
 
 .front:not([data-stage="closed"]) .play {
   opacity: 0;
@@ -566,20 +462,6 @@
   mask-image: none;
 }
 
-.front:not([data-stage="closed"]) .scene {
-  transform: scale(1.12);
-}
-
-/* After a moment, move in toward the couple. */
-.front:is([data-stage="zoom"], [data-stage="done"]) .scene {
-  transform: scale(2.35);
-  transition-duration: 2.4s;
-}
-
-.front:is([data-stage="zoom"], [data-stage="done"]) :is(.title, .divider) {
-  opacity: 0;
-}
-
 /* The last part of the zoom fades to white… */
 .front[data-stage="zoom"] .whiteout {
   opacity: 1;
@@ -590,10 +472,6 @@
 .front[data-stage="done"] .hero {
   opacity: 1;
   visibility: visible;
-}
-
-.front[data-stage="done"] .heroImage {
-  animation: settle 6s cubic-bezier(0.2, 0.6, 0.3, 1) both;
 }
 
 .front:is([data-stage="open"], [data-stage="zoom"], [data-stage="done"]) .sheen {
@@ -634,13 +512,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-/* The hero eases back from slightly close, continuing the zoom. */
-@keyframes settle {
-  from {
-    scale: 1.06;
   }
 }
 
