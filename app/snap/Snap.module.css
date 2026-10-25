@@ -33,7 +33,7 @@
 .filters > div { display: grid; gap: 0.5rem; }
 .filters button { min-width: 0; min-height: 44px; border: 1px solid #e4cbb3; color: var(--ink); background: rgb(255 251 245 / 18%); cursor: pointer; transition: border-color 160ms ease, background 160ms ease; }
 .filters button[aria-pressed="true"] { border: 2px solid #725039; background: #825f43; color: #fff6e8; }
-.lookPicker > div { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.lookPicker > div { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(4.2rem, 1fr); overflow-x: auto; scroll-snap-type: x proximity; padding: 0.2rem 0.1rem 0.5rem; scrollbar-width: thin; }
 .lookPicker button { display: flex; flex-direction: column; padding: 3px 3px 0; border-radius: 0.85rem; box-shadow: 0 3px 8px rgb(109 79 51 / 6%); }
 .filterThumb { display: block; width: 100%; aspect-ratio: 1; border: 1px solid rgb(255 250 240 / 85%); border-radius: 0.6rem; background: url("/box/room.png") 7% 8% / 320% auto; }
 .cardLabel { display: block; padding: 0.45rem 0.05rem; font-size: clamp(0.75rem, 3.2vw, 1rem); line-height: 1.2; }
@@ -98,8 +98,8 @@
   border-radius: 0;
   background: #000;
 }
-.liveLooks { display: flex; flex-shrink: 0; justify-content: center; flex-wrap: wrap; gap: 0.4rem; margin: 0.65rem 0 0; padding: 0; border: 0; }
-.liveLooks button { min-height: 36px; padding: 0.35rem 0.75rem; border: 1px solid #4a433b; border-radius: 999px; font-size: 0.85rem; cursor: pointer; }
+.liveLooks { min-width: 0; width: 100%; flex-shrink: 0; margin: 0.65rem 0 0; padding: 0; border: 0; }
+.liveLooks button { display: flex; flex-direction: column; align-items: center; flex: 0 0 4.1rem; gap: 0.3rem; min-height: 44px; padding: 0.3rem; border: 1px solid #4a433b; border-radius: 0.65rem; font-size: 0.75rem; cursor: pointer; scroll-snap-align: center; }
 .liveLooks button[aria-pressed="true"] { border-color: #e6d4bb; color: #e6d4bb; background: #312a22; }
 .cameraOverlay .actions { display: grid; grid-template-columns: 1fr 76px 1fr; align-items: center; flex-shrink: 0; min-height: 90px; margin-top: 0.5rem; }
 .cameraOverlay .shutter { position: relative; grid-column: 2; width: 72px; height: 72px; min-height: 72px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 5px #111; }
@@ -115,3 +115,18 @@
 }
 
 .cameraOverlay .shotStatus { display: none; }
+
+.lookPicker button { scroll-snap-align: center; }
+.cameraTopbar .nativeCameraButton { justify-self: end; font-size: 0.75rem; }
+.nativeCameraFallback { margin-top: 0.4rem; font-size: 0.85rem; }
+.liveFilterTrack { display: flex; gap: 0.5rem; overflow-x: auto; scroll-snap-type: x proximity; padding: 0.2rem 0.5rem; scrollbar-width: none; }
+.liveFilterTrack::-webkit-scrollbar { display: none; }
+.liveLooks .filterThumb { width: 2.5rem; height: 2.5rem; border-radius: 0.4rem; }
+.liveFilterHint { margin-top: 0.3rem; font-size: 0.75rem; color: #b6a792; }
+.liveFilterHint span { color: #f4e4cc; }
+.cameraOverlay .cameraViewport { touch-action: pan-y pinch-zoom; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .liveLooks .filterThumb { display: none; }
+  .liveLooks button { min-height: 32px; }
+  .liveFilterHint { display: none; }
+}

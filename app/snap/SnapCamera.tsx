@@ -14,6 +14,8 @@ type Photo = { url: string; file: File; downloadRequested: boolean; mobile: bool
 
 export function SnapCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const liveFilterTrackRef = useRef<HTMLDivElement>(null);
   const nativeCameraRef = useRef<HTMLInputElement>(null);
   const originalFileRef = useRef<File | null>(null);
   const originalFileSizeRef = useRef({ width: 0, height: 0 });
@@ -47,6 +49,16 @@ export function SnapCamera() {
     if (!photo) return;
     return () => URL.revokeObjectURL(photo.url);
   }, [photo]);
+
+  useEffect(() => {
+    if (!active) return;
+    const track = liveFilterTrackRef.current;
+    const selected = track?.querySelector<HTMLElement>('button[aria-pressed="true"]');
+    if (!track || !selected) return;
+    const buttonBounds = selected.getBoundingClientRect();
+    const trackBounds = track.getBoundingClientRect();
+    track.scrollTo({ left: track.scrollLeft + buttonBounds.left - trackBounds.left - (track.clientWidth - buttonBounds.width) / 2 });
+  }, [active, filter.id]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -94,12 +106,13 @@ export function SnapCamera() {
     };
   }, [active, closeCamera]);
 
+  function openNativeCamera() {
+    closeCamera();
+    setError("");
+    nativeCameraRef.current?.click();
+  }
+
   async function startCamera(nextFacing: Facing = facing) {
-    if (isPhonePhotoSaving(navigator.userAgent, navigator.maxTouchPoints)) {
-      setError("");
-      nativeCameraRef.current?.click();
-      return;
-    }
     const request = ++requestRef.current;
     setError("");
     setBusy(true);
@@ -347,6 +360,11 @@ export function SnapCamera() {
     void renderSelection(selected, frame);
   }
 
+  function swipeFilter(direction: number) {
+    const index = PHOTO_FILTERS.findIndex((item) => item.id === filter.id);
+    selectFilter(PHOTO_FILTERS[(index + direction + PHOTO_FILTERS.length) % PHOTO_FILTERS.length]);
+  }
+
   function selectFrame(selected: PhotoFrame) {
     setFrame(selected);
     void renderSelection(filter, selected);
@@ -394,13 +412,25 @@ export function SnapCamera() {
               Close
             </button>
             <p>{booth.count > 1 ? `Photo ${Math.min(shotPreviews.length + 1, booth.count)} of ${booth.count}` : "Wedding camera"}</p>
-            <span aria-hidden="true" />
+            <button type="button" className={styles.nativeCameraButton} onClick={openNativeCamera}>Phone camera</button>
           </div>
         )}
       {!photo && booth.count > 1 && (
         <p className={styles.shotStatus} role="status">Photo {Math.min(shotPreviews.length + 1, booth.count)} of {booth.count}. Take a new pose for each shot.</p>
       )}
-      <div className={styles.cameraViewport} style={{ "--view-ratio": crop.width / crop.height } as CSSProperties}>
+      <div className={styles.cameraViewport} style={{ "--view-ratio": crop.width / crop.height } as CSSProperties}
+        onTouchStart={(event) => {
+          const touch = event.touches[0];
+          swipeStartRef.current = active && event.touches.length === 1 ? { x: touch.clientX, y: touch.clientY } : null;
+        }}
+        onTouchEnd={(event) => {
+          const start = swipeStartRef.current;
+          swipeStartRef.current = null;
+          const touch = event.changedTouches[0];
+          if (!active || !start || !touch) return;
+          const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
+          if (Math.abs(dx) >= 48 && Math.abs(dx) > Math.abs(dy) * 1.4) swipeFilter(dx < 0 ? 1 : -1);
+        }}>
       <div className={styles.preview} data-idle={!active && !photo} aria-busy={busy || processing}
         style={{ aspectRatio: photo ? photo.width / photo.height : active ? crop.width / crop.height : "3 / 4", maxHeight: photo ? "75svh" : undefined }}>
         <video
@@ -431,7 +461,8 @@ export function SnapCamera() {
                 {booth.count > 1 && shotPreviews.length ? `Take photo ${shotPreviews.length + 1} of ${booth.count}` : "Open Camera"}
               </button>
             )}
-            <p>Take a photo with your camera, then keep it to continue.</p>
+            <p>Swipe through filters and capture your favorite look.</p>
+            <button type="button" className={`${styles.textButton} ${styles.nativeCameraFallback}`} onClick={openNativeCamera}>Use phone camera instead</button>
           </div>
         )}
       </div>
@@ -439,7 +470,13 @@ export function SnapCamera() {
       {active && (
         <fieldset className={styles.liveLooks}>
           <legend className={styles.srOnly}>Camera filters</legend>
-          {PHOTO_FILTERS.map((item) => <button key={item.id} type="button" aria-pressed={filter.id === item.id} onClick={() => selectFilter(item)}>{item.name}</button>)}
+          <div ref={liveFilterTrackRef} className={styles.liveFilterTrack}>
+            {PHOTO_FILTERS.map((item) => <button key={item.id} type="button" aria-pressed={filter.id === item.id} onClick={() => selectFilter(item)}>
+              <span className={styles.filterThumb} aria-hidden="true" style={{ filter: item.css }} />
+              <span>{item.name}</span>
+            </button>)}
+          </div>
+          <p className={styles.liveFilterHint}>Swipe the camera or tap a look. <span role="status" aria-live="polite">{filter.name}</span></p>
         </fieldset>
       )}
       <div className={styles.actions}>

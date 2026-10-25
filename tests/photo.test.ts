@@ -30,3 +30,20 @@ test("soft filter brightens a midtone and keeps highlights within range", () => 
   assert.ok(pixels[4] <= 255);
   assert.equal(pixels[7], 255);
 });
+
+test("Digicam adds punchier colors without reducing dimensions or changing alpha", () => {
+  const filter = PHOTO_FILTERS.find((item) => item.id === "digicam")!;
+  const pixels = new Uint8ClampedArray([160, 100, 80, 200]);
+  applyPhotoFilter(pixels, filter);
+  assert.equal(pixels.length, 4);
+  assert.equal(pixels[3], 200);
+  assert.ok(pixels[0] - pixels[2] > 80);
+});
+
+test("Digicam creates bright highlights and deeper shadows", () => {
+  const filter = PHOTO_FILTERS.find((item) => item.id === "digicam")!;
+  const pixels = new Uint8ClampedArray([20, 20, 20, 255, 230, 230, 230, 255]);
+  applyPhotoFilter(pixels, filter);
+  assert.ok(pixels[0] < 20);
+  assert.ok(pixels[4] > 230);
+});
