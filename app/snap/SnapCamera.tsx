@@ -293,10 +293,6 @@ export function SnapCamera() {
     canvas.height = crop.height;
     const context = canvas.getContext("2d");
     if (!context) return;
-    if (facing === "user") {
-      context.translate(canvas.width, 0);
-      context.scale(-1, 1);
-    }
     context.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
     addShot(canvas, true);
   }
@@ -419,7 +415,6 @@ export function SnapCamera() {
           aria-label="Live camera preview"
           style={{
             filter: filter.css,
-            transform: facing === "user" ? "scaleX(-1)" : undefined,
             objectFit: "contain",
           }}
         />
