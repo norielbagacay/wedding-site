@@ -35,6 +35,7 @@
   width: var(--s);
   height: calc(var(--s) * 1672 / 941);
   translate: -50% -50%;
+  transform-origin: 50% 72%;
 }
 
 /* A subtle fixed zoom keeps the artwork and interactive overlays aligned. */
@@ -413,14 +414,46 @@
   display: none;
 }
 
-/* Over the painted "Scroll ⌄" (around 718, 1015). */
+/* Place the prompt on the satin directly beneath the painted platform. */
 .heroScroll {
   position: absolute;
-  top: 88.6%;
-  left: 45.2%;
-  width: 9.2%;
-  height: 7.4%;
-  border-radius: 999px;
+  top: 93.5%;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  justify-content: center;
+  height: 4%;
+  padding: 0 1rem;
+  border: 0;
+  background: transparent;
+  color: #5c381c;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgb(255 250 242 / 95%);
+  animation: scrollBlink 1.8s ease-in-out infinite;
+  font-size: clamp(0.65rem, calc(var(--h) * 0.017), 0.8rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.heroScroll svg {
+  width: 14px;
+  height: 14px;
+}
+
+.heroScroll:hover,
+.heroScroll:focus-visible {
+  animation-play-state: paused;
+  opacity: 1;
+}
+
+@keyframes scrollBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 .heroScroll:focus-visible {
@@ -465,7 +498,7 @@
 /* The last part of the zoom fades to white… */
 .front[data-stage="zoom"] .whiteout {
   opacity: 1;
-  transition: opacity 1s ease-in 1.4s;
+  transition: opacity 1s ease-in;
 }
 
 /* …and the hero is there when the white clears. */

@@ -26,10 +26,16 @@ const SETTLE_DEG = 3;
 /** How soft the edge is where the couple is uncovered, in % of their window. */
 const FEATHER = 5;
 
-/** Once open, the box plays this long before the view moves in toward the couple… */
+/** Keep moving toward the couple from 0:03 until the hero transition. */
+const COUPLE_ZOOM_START_SECONDS = 3;
+const COUPLE_ZOOM_SCALE = 2.2;
+
+/** Begin the hero transition at 0:06 in the song. */
+const HERO_CUE_SECONDS = 6;
+/** Continue without music if playback is blocked, muted, or unavailable. */
 const HOLD_MS = 3000;
-/** …and fades to white, which takes this long (MusicBox.module.css); then the hero shows. */
-const ZOOM_MS = 2400;
+/** Fade to white immediately at the cue, then reveal the hero. */
+const ZOOM_MS = 1000;
 
 /** In the music box's pixels (MusicBox.module.css): the hinge line, how far the closed
     lid reaches in front of it, and the couple's window. */
@@ -84,6 +90,7 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
   const outsideRef = useRef<HTMLDivElement>(null);
   const insideRef = useRef<HTMLDivElement>(null);
   const wellRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Always greet guests with the closed box, even after a reload halfway down the page.
@@ -94,14 +101,44 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
     return () => song.stop();
   }, []);
 
-  // Let the open box play for a moment, move in toward the couple, then unlock the page.
+  // Follow the audio clock so buffering does not move the lyric cue.
   useEffect(() => {
-    if (stage !== "open" && stage !== "zoom") return;
-    const timer = window.setTimeout(
-      () => setStage(stage === "open" ? "zoom" : "done"),
-      stage === "open" ? HOLD_MS : ZOOM_MS,
-    );
-    return () => window.clearTimeout(timer);
+    if (stage === "zoom") {
+      const timer = window.setTimeout(() => setStage("done"), ZOOM_MS);
+      return () => window.clearTimeout(timer);
+    }
+    if (stage !== "open") return;
+    const started = performance.now();
+    let frame = requestAnimationFrame(function checkCue(now) {
+      const position = music.current?.getPlaybackTime() ?? null;
+      if (
+        (position !== null && position >= HERO_CUE_SECONDS) ||
+        (position === null && now - started >= HOLD_MS)
+      ) {
+        setStage("zoom");
+        return;
+      }
+      frame = requestAnimationFrame(checkCue);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [stage]);
+
+  // Keep the camera zooming with the song until the hero transition begins.
+  useEffect(() => {
+    if (stage !== "opening" && stage !== "open") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const scene = sceneRef.current;
+    if (!scene) return;
+    let frame = requestAnimationFrame(function zoomToCouple() {
+      const position = music.current?.getPlaybackTime() ?? null;
+      if (position !== null) {
+        const progress = easeInOutSine(ramp(position, COUPLE_ZOOM_START_SECONDS, HERO_CUE_SECONDS));
+        // The couple stands around 72% down the room; bring them toward the center.
+        scene.style.transform = `translateY(${-22 * progress}%) scale(${1 + (COUPLE_ZOOM_SCALE - 1) * progress})`;
+      }
+      frame = requestAnimationFrame(zoomToCouple);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [stage]);
 
   // Swing the lid frame by frame, uncovering the couple exactly as far as its edge has risen.
@@ -163,8 +200,8 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
 
   function openBox() {
     if (stage !== "closed") return;
-    music.current?.play();
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    music.current?.play();
     setStage(still ? "done" : "opening");
   }
 
@@ -182,7 +219,7 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
       >
         <div className={styles.backdrop} aria-hidden="true" />
 
-        <div className={styles.scene}>
+        <div ref={sceneRef} className={styles.scene}>
           <Image src={room} alt="" unoptimized preload placeholder="blur" className={styles.room} />
 
           <h1 className={styles.title}>
@@ -247,7 +284,7 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
           )}
         </div>
 
-        {/* After the box: the couple on their own, with "Scroll" painted under them. */}
+        {/* After the box: the portrait invitation and a link to the details. */}
         <div className={styles.hero} inert={stage !== "done"}>
           <div className={styles.heroBackdrop} aria-hidden="true" />
           <div className={styles.heroStage}>
@@ -255,7 +292,12 @@ export function MusicBox({ names, heroMonth, children }: MusicBoxProps) {
             <span className={styles.heroMonth} aria-hidden="true">
               {heroMonth}
             </span>
-            <a href="#details" className={styles.heroScroll} aria-label="Scroll to the details" />
+          <a href="#details" className={styles.heroScroll}>
+            <span>Scroll down</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
           </div>
         </div>
 

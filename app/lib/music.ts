@@ -1,11 +1,13 @@
 /**
  * The background song (public/music.mp3), looped. It loads with the page so it can
- * start the moment the box is tapped; browsers only allow that from a tap or click.
+ * start as soon as the play icon is tapped.
  */
 
 export type Music = {
-  /** Starts (or resumes) with a short fade-in. Call it from a tap or click. */
+  /** Starts (or resumes) with a short fade-in. */
   play(): void;
+  /** Actual song position; null if playback is muted, blocked, or unavailable. */
+  getPlaybackTime(): number | null;
   setMuted(muted: boolean): void;
   stop(): void;
 };
@@ -19,6 +21,7 @@ export function createMusic(src: string): Music {
   audio.preload = "auto";
   audio.volume = 0;
 
+  let playbackFailed = false;
   let wanted = false;
   let muted = false;
   let fade = 0;
@@ -39,8 +42,8 @@ export function createMusic(src: string): Music {
 
   function sync() {
     if (wanted && !muted && !document.hidden) {
-      // The promise rejects if the browser blocks playback; there is nothing more to do then.
-      audio.play().catch(() => {});
+      playbackFailed = false;
+      audio.play().catch(() => { playbackFailed = true; });
       fadeTo(VOLUME);
     } else {
       fadeTo(0);
@@ -53,6 +56,9 @@ export function createMusic(src: string): Music {
     play() {
       wanted = true;
       sync();
+    },
+    getPlaybackTime() {
+      return muted || playbackFailed || audio.error ? null : audio.currentTime;
     },
     setMuted(next) {
       muted = next;
