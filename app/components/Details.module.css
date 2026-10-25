@@ -51,3 +51,21 @@
   height: 100%;
   object-fit: contain;
 }
+
+.cameraLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 1rem;
+  padding: 0.6rem 1.75rem;
+  border: 1px solid var(--color-gold);
+  border-radius: 999px;
+  color: var(--color-gold-dark);
+  background: rgb(255 250 242 / 65%);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.cameraLink:hover { background: rgb(185 138 76 / 12%); }
+.cameraLink:focus-visible { outline: 2px solid var(--color-gold-dark); outline-offset: 4px; }

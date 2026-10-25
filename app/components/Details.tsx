@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { coupleNames, wedding, weekday } from "../content";
@@ -155,29 +156,21 @@ export function Details() {
         </ul>
         <figure className="mx-auto mt-10 max-w-xs">
           <div className={styles.photoQr}>
-            {wedding.photoSharing.qrImage ? (
-              <Image
-                src={wedding.photoSharing.qrImage}
-                alt="Scan to upload your wedding photos"
-                width={224}
-                height={224}
-                unoptimized
-              />
-            ) : (
-              <Image
-                src="/photos/sample-upload-qr.svg"
-                alt="Sample QR code linking to our wedding site"
-                width={224}
-                height={224}
-                unoptimized
-              />
-            )}
+            <Image
+              src={wedding.photoSharing.qrImage || "/photos/snap-qr.svg"}
+              alt="Scan to open the wedding camera"
+              width={224}
+              height={224}
+              unoptimized
+            />
           </div>
           <figcaption className="mt-4 text-lg leading-relaxed">
-            {wedding.photoSharing.qrImage
-              ? "Scan to share the moments you captured."
-              : "Photo uploads coming soon."}
+            Scan to open the camera and capture a memory.
           </figcaption>
+          <Link href="/snap" className={styles.cameraLink}>
+            Open camera
+          </Link>
+          <p className="mt-2 text-sm">No scan needed. Tap to snap.</p>
         </figure>
       </Section>
 

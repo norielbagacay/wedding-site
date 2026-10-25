@@ -83,8 +83,8 @@ export const wedding: Wedding = {
   photoSharing: {
     message:
       "After our unplugged ceremony, help us capture and share our precious moments using our official wedding hashtags.",
-    /** Add your photo upload QR image to public/ and enter its path, e.g. /photos/upload-qr.png. */
-    qrImage: "",
+    /** This QR opens siteUrl + /snap. Regenerate it if your deployed domain changes. */
+    qrImage: "/photos/snap-qr.svg",
   },
   gifts: {
     message:
