@@ -6,10 +6,11 @@ import { applyPhotoFilter, PHOTO_FILTERS, type PhotoFilter } from "../lib/photo"
 import { addPhotoFrame, getFrameLayout, PHOTO_FRAMES, type PhotoFrame } from "../lib/photo-frame";
 import { coupleNames, wedding } from "../content";
 import { BOOTH_LAYOUTS, composeBoothPhotos, getBoothGeometry, type BoothLayout } from "../lib/photo-booth";
+import { isPhonePhotoSaving } from "../lib/photo-saving";
 import styles from "./Snap.module.css";
 
 type Facing = "user" | "environment";
-type Photo = { url: string; file: File; downloadRequested: boolean; width: number; height: number };
+type Photo = { url: string; file: File; downloadRequested: boolean; mobile: boolean; nativeShare: boolean; width: number; height: number };
 
 export function SnapCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -104,7 +105,6 @@ export function SnapCamera() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: nextFacing },
-          width: { ideal: 1920 },
         },
         audio: false,
       });
@@ -169,8 +169,12 @@ export function SnapCamera() {
       }
       const file = new File([blob], `genesis-rosher-${Date.now()}.jpg`, { type: "image/jpeg" });
       const url = URL.createObjectURL(blob);
-      setPhoto({ url, file, downloadRequested: autoDownload, width: output.width, height: output.height });
-      if (autoDownload) {
+      const mobile = isPhonePhotoSaving(navigator.userAgent, navigator.maxTouchPoints);
+      let nativeShare = false;
+      try { nativeShare = Boolean(navigator.canShare?.({ files: [file] })); } catch {}
+      const downloadRequested = autoDownload && !mobile;
+      setPhoto({ url, file, downloadRequested, mobile, nativeShare, width: output.width, height: output.height });
+      if (downloadRequested) {
         // Request a download once per capture; edits keep the manual save action.
         const link = document.createElement("a");
         link.href = url;
@@ -308,11 +312,11 @@ export function SnapCamera() {
       if (navigator.canShare?.({ files: [photo.file] })) {
         await navigator.share({ files: [photo.file], title: "Our wedding memory" });
       } else {
-        setError("Save your photo first, then share it from your photo library.");
+        setError(photo.mobile ? "Tap Open photo, then press and hold the image to see your phone's save options." : "Save your photo first, then share it from your photo library.");
       }
     } catch (cause) {
       if (!(cause instanceof DOMException && cause.name === "AbortError")) {
-        setError("Please save your photo and share it from your photo library.");
+        setError(photo.mobile ? "Your phone could not open the save menu. Tap Open photo, then press and hold the image to save it." : "Please save your photo and share it from your photo library.");
       }
     }
   }
@@ -388,8 +392,19 @@ export function SnapCamera() {
       <div className={styles.actions}>
         {photo ? (
           <>
-            <a href={photo.url} download={photo.file.name} className={styles.primary} aria-disabled={processing} onClick={(event) => { if (processing) event.preventDefault(); }}>Save photo</a>
-            <button className={styles.secondary} disabled={processing} onClick={() => void sharePhoto()}>Share photo</button>
+            {photo.mobile ? (
+              <>
+                {photo.nativeShare
+                  ? <button className={styles.primary} disabled={processing} onClick={() => void sharePhoto()}>Save to phone</button>
+                  : null}
+                <a href={photo.url} target="_blank" rel="noopener noreferrer" className={photo.nativeShare ? styles.secondary : styles.primary} aria-disabled={processing} onClick={(event) => { if (processing) event.preventDefault(); }}>Open photo</a>
+              </>
+            ) : (
+              <>
+                <a href={photo.url} download={photo.file.name} className={styles.primary} aria-disabled={processing} onClick={(event) => { if (processing) event.preventDefault(); }}>Save photo</a>
+                <button className={styles.secondary} disabled={processing} onClick={() => void sharePhoto()}>Share photo</button>
+              </>
+            )}
             <button className={styles.textButton} disabled={processing} onClick={retake}>{booth.count > 1 ? "Start a new set" : "Take another"}</button>
           </>
         ) : active ? (
@@ -473,12 +488,16 @@ export function SnapCamera() {
       {error && <p className={styles.error} role="alert">{error}</p>}
       <p className={styles.note} role="status" aria-live="polite">
         {processing ? "Preparing your photo..." : photo
-          ? photo.downloadRequested
+          ? photo.mobile
+            ? photo.nativeShare
+              ? "Tap Save to phone, then choose Save Image or your photo app if offered."
+              : "Tap Open photo, then press and hold the image to see your phone's save options."
+            : photo.downloadRequested
             ? "Download requested. Check your downloads, or tap Save photo if it did not start."
             : "Your photo is ready. Tap Save photo to keep this version."
           : <><svg width="12" height="15" viewBox="0 0 12 15" fill="none" aria-hidden="true"><rect x="1" y="6" width="10" height="8" rx="1.5" fill="currentColor" /><path d="M3 6V4a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.5" /><circle cx="6" cy="10" r="1" fill="#f8eee2" /></svg>Camera access and photo downloads start only when you choose.</>}
       </p>
-      {photo && <p className={styles.note}>To add it to your photo library, tap Share photo and choose a save option if available.</p>}
+      {photo?.mobile && <p className={styles.note}>Saving to Photos or Gallery needs your confirmation. The available save options depend on your phone.</p>}
       </div>
     </section>
   );

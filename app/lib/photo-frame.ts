@@ -1,8 +1,8 @@
 export const PHOTO_FRAMES = [
+  { id: "none", name: "No frame", background: "transparent", ink: "#65492f" },
   { id: "instax", name: "Instax", background: "#fffdf8", ink: "#65492f" },
   { id: "gold", name: "Ivory & Gold", background: "#fff3dd", ink: "#8b642f" },
   { id: "black", name: "Classic Black", background: "#191817", ink: "#fff7e8" },
-  { id: "none", name: "No frame", background: "transparent", ink: "#65492f" },
 ] as const;
 
 export type PhotoFrame = (typeof PHOTO_FRAMES)[number];
