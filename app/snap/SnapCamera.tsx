@@ -14,6 +14,9 @@ type Photo = { url: string; file: File; downloadRequested: boolean; mobile: bool
 
 export function SnapCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const nativeCameraRef = useRef<HTMLInputElement>(null);
+  const originalFileRef = useRef<File | null>(null);
+  const originalFileSizeRef = useRef({ width: 0, height: 0 });
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -92,6 +95,11 @@ export function SnapCamera() {
   }, [active, closeCamera]);
 
   async function startCamera(nextFacing: Facing = facing) {
+    if (isPhonePhotoSaving(navigator.userAgent, navigator.maxTouchPoints)) {
+      setError("");
+      nativeCameraRef.current?.click();
+      return;
+    }
     const request = ++requestRef.current;
     setError("");
     setBusy(true);
@@ -136,66 +144,105 @@ export function SnapCamera() {
     }
   }
 
+  function publishPhoto(file: File, width: number, height: number, autoDownload = false) {
+    const url = URL.createObjectURL(file);
+    const mobile = isPhonePhotoSaving(navigator.userAgent, navigator.maxTouchPoints);
+    let nativeShare = false;
+    try { nativeShare = Boolean(navigator.canShare?.({ files: [file] })); } catch {}
+    const downloadRequested = autoDownload && !mobile;
+    setPhoto({ url, file, downloadRequested, mobile, nativeShare, width, height });
+    if (downloadRequested) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.name;
+      link.hidden = true;
+      document.body.appendChild(link);
+      try { link.click(); } catch { setError("Please tap Save photo to download your picture."); }
+      finally { link.remove(); }
+    }
+  }
+
   function renderPhoto(original: HTMLCanvasElement, selected: PhotoFilter, autoDownload = false, selectedFrame: PhotoFrame = frame) {
     const render = ++renderRef.current;
-    setProcessing(true);
-    const canvas = document.createElement("canvas");
-    canvas.width = original.width;
-    canvas.height = original.height;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      setError("Your browser couldn't prepare this photo. Please try again.");
+    if (booth.count === 1 && selected.id === "original" && selectedFrame.id === "none" && originalFileRef.current) {
       setProcessing(false);
+      publishPhoto(originalFileRef.current, original.width, original.height, autoDownload);
       return;
     }
-    context.drawImage(original, 0, 0);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-    applyPhotoFilter(pixels.data, selected);
-    context.putImageData(pixels, 0, 0);
-    let output: HTMLCanvasElement;
+    setProcessing(true);
     try {
-      output = addPhotoFrame(canvas, selectedFrame, wedding.hashtags, coupleNames);
+      const canvas = document.createElement("canvas");
+      canvas.width = original.width;
+      canvas.height = original.height;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Photo canvas unavailable");
+      context.drawImage(original, 0, 0);
+      if (selected.id !== "original") {
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+        applyPhotoFilter(pixels.data, selected);
+        context.putImageData(pixels, 0, 0);
+      }
+      const output = addPhotoFrame(canvas, selectedFrame, wedding.hashtags, coupleNames);
+      output.toBlob((blob) => {
+        if (render !== renderRef.current) return;
+        setProcessing(false);
+        if (!blob) {
+          setError("This full-resolution photo is too large for your browser. Try fewer photos or No frame.");
+          return;
+        }
+        const file = new File([blob], `genesis-rosher-${Date.now()}.png`, { type: "image/png" });
+        publishPhoto(file, output.width, output.height, autoDownload);
+      }, "image/png");
     } catch {
       setProcessing(false);
-      setError("We couldn't prepare your frame. Please try again.");
+      setError("Your browser couldn't prepare this full-resolution photo. Try fewer photos or No frame.");
+    }
+  }
+
+  async function renderSelection(selected: PhotoFilter, selectedFrame: PhotoFrame) {
+    const file = originalFileRef.current;
+    if (file && booth.count === 1 && selected.id === "original" && selectedFrame.id === "none") {
+      renderRef.current++;
+      setError("");
+      setProcessing(false);
+      publishPhoto(file, originalFileSizeRef.current.width, originalFileSizeRef.current.height);
       return;
     }
-    output.toBlob((blob) => {
+    if (originalRef.current) {
+      renderPhoto(originalRef.current, selected, false, selectedFrame);
+      return;
+    }
+    if (!file) return;
+    const render = ++renderRef.current;
+    setProcessing(true);
+    const url = URL.createObjectURL(file);
+    try {
+      const image = new window.Image();
+      image.src = url;
+      await image.decode();
       if (render !== renderRef.current) return;
-      setProcessing(false);
-      if (!blob) {
-        setError("Your photo couldn't be saved. Please try again.");
-        return;
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Photo canvas unavailable");
+      context.drawImage(image, 0, 0);
+      originalRef.current = canvas;
+      renderPhoto(canvas, selected, false, selectedFrame);
+    } catch {
+      if (render === renderRef.current) {
+        setProcessing(false);
+        setError("Your browser couldn't edit this full-resolution photo. Select Original and No frame to keep the original file.");
       }
-      const file = new File([blob], `genesis-rosher-${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = URL.createObjectURL(blob);
-      const mobile = isPhonePhotoSaving(navigator.userAgent, navigator.maxTouchPoints);
-      let nativeShare = false;
-      try { nativeShare = Boolean(navigator.canShare?.({ files: [file] })); } catch {}
-      const downloadRequested = autoDownload && !mobile;
-      setPhoto({ url, file, downloadRequested, mobile, nativeShare, width: output.width, height: output.height });
-      if (downloadRequested) {
-        // Request a download once per capture; edits keep the manual save action.
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = file.name;
-        link.hidden = true;
-        document.body.appendChild(link);
-        try {
-          link.click();
-        } catch {
-          setError("Please tap Save photo to download your picture.");
-        } finally {
-          link.remove();
-        }
-      }
-    }, "image/jpeg", 0.92);
+    } finally { URL.revokeObjectURL(url); }
   }
 
   function resetShots() {
     renderRef.current++;
     shotsRef.current = [];
     originalRef.current = null;
+    originalFileRef.current = null;
+    originalFileSizeRef.current = { width: 0, height: 0 };
     setShotPreviews([]);
     setPhoto(null);
     setProcessing(false);
@@ -211,6 +258,7 @@ export function SnapCamera() {
   function addShot(canvas: HTMLCanvasElement, autoDownload: boolean) {
     if (shotsRef.current.length >= booth.count) return;
     shotsRef.current.push(canvas);
+    // Only the on-screen thumbnail is smaller; exports keep the original file or pixels.
     const thumbnail = document.createElement("canvas");
     thumbnail.width = 160;
     thumbnail.height = Math.max(1, Math.round(160 * canvas.height / canvas.width));
@@ -224,7 +272,7 @@ export function SnapCamera() {
         renderPhoto(sheet, filter, autoDownload);
         stopCamera();
       } catch {
-        setError("We couldn't prepare your photo sheet. Please start a new set.");
+        setError("This full-resolution strip is too large for your browser. Try fewer photos; image quality has not been reduced.");
       }
     }
   }
@@ -241,9 +289,8 @@ export function SnapCamera() {
     if (!video || !ready || processing || shotsRef.current.length >= booth.count || !video.videoWidth || !video.videoHeight) return;
     const canvas = document.createElement("canvas");
     const crop = { x: 0, y: 0, width: video.videoWidth, height: video.videoHeight };
-    const scale = Math.min(1, 1600 / Math.max(crop.width, crop.height));
-    canvas.width = Math.round(crop.width * scale);
-    canvas.height = Math.round(crop.height * scale);
+    canvas.width = crop.width;
+    canvas.height = crop.height;
     const context = canvas.getContext("2d");
     if (!context) return;
     if (facing === "user") {
@@ -260,7 +307,7 @@ export function SnapCamera() {
     if (!files.length) return;
     const request = ++requestRef.current;
     stopCamera();
-    if (shotsRef.current.length >= booth.count) resetShots();
+    if (photo || shotsRef.current.length >= booth.count) resetShots();
     setBusy(true);
     setError("");
     try {
@@ -271,10 +318,19 @@ export function SnapCamera() {
           image.src = url;
           await image.decode();
           if (request !== requestRef.current) return;
+          setVideoSize({ width: image.naturalWidth, height: image.naturalHeight });
+          if (booth.count === 1) {
+            originalFileRef.current = file;
+            originalFileSizeRef.current = { width: image.naturalWidth, height: image.naturalHeight };
+            if (filter.id === "original" && frame.id === "none") {
+              renderRef.current++;
+              publishPhoto(file, image.naturalWidth, image.naturalHeight);
+              continue;
+            }
+          }
           const canvas = document.createElement("canvas");
-          const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
-          canvas.width = Math.round(image.naturalWidth * scale);
-          canvas.height = Math.round(image.naturalHeight * scale);
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
           const context = canvas.getContext("2d");
           if (!context) throw new Error("Canvas unavailable");
           context.drawImage(image, 0, 0, canvas.width, canvas.height);
@@ -292,12 +348,12 @@ export function SnapCamera() {
 
   function selectFilter(selected: PhotoFilter) {
     setFilter(selected);
-    if (originalRef.current) renderPhoto(originalRef.current, selected);
+    void renderSelection(selected, frame);
   }
 
   function selectFrame(selected: PhotoFrame) {
     setFrame(selected);
-    if (originalRef.current) renderPhoto(originalRef.current, filter, false, selected);
+    void renderSelection(filter, selected);
   }
 
   function retake() {
@@ -331,6 +387,8 @@ export function SnapCamera() {
 
   return (
     <section className={styles.camera} aria-label="Wedding photo camera">
+      <input ref={nativeCameraRef} type="file" accept="image/*" capture="environment" hidden
+        aria-label="Take a photo with your phone camera" onChange={(event) => void choosePhoto(event)} />
       <div ref={overlayRef} className={active ? styles.cameraOverlay : styles.cameraStage}
         role={active ? "dialog" : undefined} aria-modal={active ? true : undefined} aria-label={active ? "Camera" : undefined}>
         {active && (
@@ -375,10 +433,10 @@ export function SnapCamera() {
                   <path d="m8 5 1.5-2h5L16 5h3a2 2 0 0 1 2 2v12H3V7a2 2 0 0 1 2-2h3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
                   <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
-                Enable Camera
+                {booth.count > 1 && shotPreviews.length ? `Take photo ${shotPreviews.length + 1} of ${booth.count}` : "Open Camera"}
               </button>
             )}
-            <p>Camera access starts when you choose.</p>
+            <p>Take a photo with your camera, then keep it to continue.</p>
           </div>
         )}
       </div>

@@ -46,3 +46,13 @@ test("incomplete photo sets cannot be exported", () => {
   assert.throws(() => composeBoothPhotos([shot], BOOTH_LAYOUTS[2]), /Complete all photos/);
   assert.equal(composeBoothPhotos([shot], BOOTH_LAYOUTS[0]), shot);
 });
+
+test("photobooth layouts retain large camera dimensions without a resolution cap", () => {
+  for (const layout of BOOTH_LAYOUTS) {
+    const geometry = getBoothGeometry(6000, 8000, layout);
+    for (const cell of geometry.cells) {
+      assert.equal(cell.width, 6000);
+      assert.equal(cell.height, 8000);
+    }
+  }
+});

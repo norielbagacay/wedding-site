@@ -8,9 +8,8 @@ export const BOOTH_LAYOUTS = [
 export type BoothLayout = (typeof BOOTH_LAYOUTS)[number];
 
 export function getBoothGeometry(width: number, height: number, layout: BoothLayout) {
-  const scale = layout.count === 1 ? 1 : Math.min(1, 960 / Math.max(width, height));
-  const cellWidth = Math.max(1, Math.round(width * scale));
-  const cellHeight = Math.max(1, Math.round(height * scale));
+  const cellWidth = Math.max(1, Math.round(width));
+  const cellHeight = Math.max(1, Math.round(height));
   const gap = layout.count === 1 ? 0 : Math.max(1, Math.round(Math.min(cellWidth, cellHeight) * 0.035));
   return {
     width: cellWidth * layout.columns + gap * (layout.columns - 1),
@@ -35,7 +34,7 @@ export function fitPhoto(width: number, height: number, cell: { x: number; y: nu
 export function composeBoothPhotos(shots: HTMLCanvasElement[], layout: BoothLayout): HTMLCanvasElement {
   if (shots.length !== layout.count) throw new Error("Complete all photos before composing the sheet");
   if (layout.count === 1) return shots[0];
-  const geometry = getBoothGeometry(shots[0].width, shots[0].height, layout);
+  const geometry = getBoothGeometry(Math.max(...shots.map((shot) => shot.width)), Math.max(...shots.map((shot) => shot.height)), layout);
   const canvas = document.createElement("canvas");
   canvas.width = geometry.width;
   canvas.height = geometry.height;
