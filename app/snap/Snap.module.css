@@ -15,7 +15,7 @@
 .preview[data-idle="true"] { aspect-ratio: auto !important; min-height: 10rem; border-radius: 1.25rem; background: transparent; }
 .preview video, .captured { width: 100%; height: 100%; object-fit: contain; }
 .preview video { position: absolute; inset: 0; }
-.preview video[hidden], .liveFrame[hidden] { display: none; }
+.preview video[hidden] { display: none; }
 .empty { position: relative; width: 100%; padding: 2rem 1rem; color: var(--ink); }
 .empty > p { position: relative; margin-top: 0.9rem; font-size: 0.95rem; }
 .primary, .secondary, .textButton { display: inline-flex; justify-content: center; align-items: center; gap: 0.7rem; min-height: 44px; padding: 0.65rem 1.5rem; border-radius: 999px; font-size: 1rem; cursor: pointer; text-decoration: none; }
@@ -64,15 +64,54 @@
 .footer ul { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.75rem; color: #785632; font-weight: 600; font-size: clamp(0.85rem, 3.8vw, 1.15rem); overflow-wrap: anywhere; }
 .content :is(button, a, summary):focus-visible { outline: 2px solid #785632; outline-offset: 4px; }
 .content button:disabled, .content a[aria-disabled="true"] { opacity: 0.55; cursor: wait; }
-.liveFrame { position: absolute; inset: 0; }
-.liveFrame[data-frame="gold"]::after { content: ""; position: absolute; inset: 1.75%; border: 1px solid #bd9455; pointer-events: none; }
-.liveFrame[data-frame="gold"] video { outline: 1px solid #bd9455; }
-.liveCaption { position: absolute; bottom: 0; left: 0; width: 100%; font-family: Georgia, serif; }
-.liveCaption span { position: absolute; left: 0; width: 100%; translate: 0 -50%; font-weight: 700; line-height: 1; white-space: nowrap; }
-.liveCaption .frameNames { font-weight: 400; font-style: italic; }
 .shotStatus { margin: 0.5rem 0 0.75rem; color: #785632; font-size: 1rem; }
 .shotTray { display: grid; gap: 0.5rem; margin-top: 1rem; }
 .shotTray li { display: grid; place-items: center; aspect-ratio: 3 / 4; overflow: hidden; border: 1px solid #c8b18f; border-radius: 0.4rem; background: #ede2d3; }
 .shotTray img { width: 100%; height: 100%; object-fit: contain; }
 .shotTray span { font-size: 0.8rem; color: #785632; }
 @media (prefers-reduced-motion: reduce) { .filters button { transition: none; } }
+
+/* A phone-camera view takes over the screen while the stream is active. */
+.cameraOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+  overflow: hidden;
+  background: #111;
+  color: #f8f2e9;
+}
+.cameraTopbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; flex-shrink: 0; min-height: 44px; margin-bottom: 0.4rem; }
+.cameraTopbar button { display: inline-flex; align-items: center; gap: 0.3rem; justify-self: start; min-height: 44px; padding: 0.3rem 0.5rem; font-size: 0.9rem; cursor: pointer; }
+.cameraTopbar p { font-size: 0.95rem; }
+.cameraOverlay .cameraViewport { flex: 1; min-height: 0; display: grid; place-items: center; container-type: size; }
+.cameraOverlay .preview {
+  width: min(100cqw, calc(100cqh * var(--view-ratio)));
+  height: min(100cqh, calc(100cqw / var(--view-ratio)));
+  flex-shrink: 0;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+.liveLooks { display: flex; flex-shrink: 0; justify-content: center; flex-wrap: wrap; gap: 0.4rem; margin: 0.65rem 0 0; padding: 0; border: 0; }
+.liveLooks button { min-height: 36px; padding: 0.35rem 0.75rem; border: 1px solid #4a433b; border-radius: 999px; font-size: 0.85rem; cursor: pointer; }
+.liveLooks button[aria-pressed="true"] { border-color: #e6d4bb; color: #e6d4bb; background: #312a22; }
+.cameraOverlay .actions { display: grid; grid-template-columns: 1fr 76px 1fr; align-items: center; flex-shrink: 0; min-height: 90px; margin-top: 0.5rem; }
+.cameraOverlay .shutter { position: relative; grid-column: 2; width: 72px; height: 72px; min-height: 72px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 5px #111; }
+.cameraOverlay .shutter:active { background: #e6d4bb; transform: scale(0.95); }
+.cameraOverlay .switchCamera { grid-column: 3; justify-self: center; width: 48px; height: 48px; padding: 0; border-color: #665b4c; color: #f8f2e9; background: #25211c; }
+.cameraOverlay :is(button, a):focus-visible { outline-color: #e6d4bb; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .cameraOverlay .cameraTopbar { min-height: 32px; margin: 0; }
+  .cameraOverlay .cameraTopbar button { min-height: 32px; }
+  .cameraOverlay .actions { min-height: 64px; margin-top: 0.2rem; }
+  .cameraOverlay .shutter { width: 56px; height: 56px; min-height: 56px; justify-self: center; }
+  .cameraOverlay .liveLooks { margin-top: 0.25rem; }
+}
+
+.cameraOverlay .shotStatus { display: none; }

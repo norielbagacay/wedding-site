@@ -164,13 +164,13 @@ export function Details() {
               unoptimized
             />
           </div>
-          <figcaption className="mt-4 text-lg leading-relaxed">
+          {/* <figcaption className="mt-4 text-lg leading-relaxed">
             Scan to open the camera and capture a memory.
           </figcaption>
           <Link href="/snap" className={styles.cameraLink}>
             Open camera
           </Link>
-          <p className="mt-2 text-sm">No scan needed. Tap to snap.</p>
+          <p className="mt-2 text-sm">No scan needed. Tap to snap.</p> */}
         </figure>
       </Section>
 

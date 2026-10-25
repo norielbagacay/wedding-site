@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { applyPhotoFilter, PHOTO_FILTERS, type PhotoFilter } from "../lib/photo";
 import { addPhotoFrame, getFrameLayout, PHOTO_FRAMES, type PhotoFrame } from "../lib/photo-frame";
 import { coupleNames, wedding } from "../content";
-import { BOOTH_LAYOUTS, composeBoothPhotos, type BoothLayout } from "../lib/photo-booth";
+import { BOOTH_LAYOUTS, composeBoothPhotos, getBoothGeometry, type BoothLayout } from "../lib/photo-booth";
 import styles from "./Snap.module.css";
 
 type Facing = "user" | "environment";
@@ -13,6 +13,8 @@ type Photo = { url: string; file: File; downloadRequested: boolean; width: numbe
 
 export function SnapCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const requestRef = useRef(0);
   const renderRef = useRef(0);
@@ -42,12 +44,51 @@ export function SnapCamera() {
     return () => URL.revokeObjectURL(photo.url);
   }, [photo]);
 
-  function stopCamera() {
+  const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setActive(false);
     setReady(false);
-  }
+  }, []);
+
+  const closeCamera = useCallback(() => {
+    requestRef.current++;
+    stopCamera();
+    setBusy(false);
+  }, [stopCamera]);
+
+  useEffect(() => {
+    if (!active) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    closeRef.current?.focus({ preventScroll: true });
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCamera();
+      }
+      if (event.key === "Tab") {
+        const controls = overlayRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex="0"]');
+        if (!controls?.length) return;
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.removeEventListener("keydown", handleKey);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [active, closeCamera]);
 
   async function startCamera(nextFacing: Facing = facing) {
     const request = ++requestRef.current;
@@ -61,7 +102,10 @@ export function SnapCamera() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: nextFacing }, width: { ideal: 1440 }, height: { ideal: 1920 } },
+        video: {
+          facingMode: { ideal: nextFacing },
+          width: { ideal: 1920 },
+        },
         audio: false,
       });
       if (request !== requestRef.current) {
@@ -181,20 +225,28 @@ export function SnapCamera() {
     }
   }
 
+  function updateVideoSize() {
+    const video = videoRef.current;
+    if (video?.videoWidth && video.videoHeight) {
+      setVideoSize({ width: video.videoWidth, height: video.videoHeight });
+    }
+  }
+
   function capture() {
     const video = videoRef.current;
     if (!video || !ready || processing || shotsRef.current.length >= booth.count || !video.videoWidth || !video.videoHeight) return;
     const canvas = document.createElement("canvas");
-    const scale = Math.min(1, 1600 / Math.max(video.videoWidth, video.videoHeight));
-    canvas.width = Math.round(video.videoWidth * scale);
-    canvas.height = Math.round(video.videoHeight * scale);
+    const crop = { x: 0, y: 0, width: video.videoWidth, height: video.videoHeight };
+    const scale = Math.min(1, 1600 / Math.max(crop.width, crop.height));
+    canvas.width = Math.round(crop.width * scale);
+    canvas.height = Math.round(crop.height * scale);
     const context = canvas.getContext("2d");
     if (!context) return;
     if (facing === "user") {
       context.translate(canvas.width, 0);
       context.scale(-1, 1);
     }
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    context.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
     addShot(canvas, true);
   }
 
@@ -265,49 +317,50 @@ export function SnapCamera() {
     }
   }
 
-  const layout = getFrameLayout(videoSize.width, videoSize.height, frame);
-  const lineHeight = layout.footer / (wedding.hashtags.length + 2.5);
-  const captionFontSize = Math.round(lineHeight * 0.7);
+  const crop = videoSize;
+  const boothGeometry = getBoothGeometry(crop.width, crop.height, booth);
+  const frameOptions = PHOTO_FRAMES.map((item) => {
+    const thumbnail = getFrameLayout(boothGeometry.width, boothGeometry.height, item);
+    const scale = Math.min(3.6 / thumbnail.width, 5.2 / thumbnail.height);
+    return { ...item, previewWidth: thumbnail.width * scale, previewHeight: thumbnail.height * scale };
+  });
 
   return (
     <section className={styles.camera} aria-label="Wedding photo camera">
+      <div ref={overlayRef} className={active ? styles.cameraOverlay : styles.cameraStage}
+        role={active ? "dialog" : undefined} aria-modal={active ? true : undefined} aria-label={active ? "Camera" : undefined}>
+        {active && (
+          <div className={styles.cameraTopbar}>
+            <button ref={closeRef} type="button" onClick={closeCamera} aria-label="Close camera">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              Close
+            </button>
+            <p>{booth.count > 1 ? `Photo ${Math.min(shotPreviews.length + 1, booth.count)} of ${booth.count}` : "Wedding camera"}</p>
+            <span aria-hidden="true" />
+          </div>
+        )}
       {!photo && booth.count > 1 && (
         <p className={styles.shotStatus} role="status">Photo {Math.min(shotPreviews.length + 1, booth.count)} of {booth.count}. Take a new pose for each shot.</p>
       )}
+      <div className={styles.cameraViewport} style={{ "--view-ratio": crop.width / crop.height } as CSSProperties}>
       <div className={styles.preview} data-idle={!active && !photo} aria-busy={busy || processing}
-        style={{ aspectRatio: photo ? photo.width / photo.height : active ? layout.width / layout.height : "3 / 4", maxHeight: photo ? "75svh" : undefined }}>
-        <div className={styles.liveFrame} hidden={Boolean(photo) || !active} data-frame={frame.id}
-          style={{ background: frame.background, color: frame.ink }}>
+        style={{ aspectRatio: photo ? photo.width / photo.height : active ? crop.width / crop.height : "3 / 4", maxHeight: photo ? "75svh" : undefined }}>
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
           hidden={Boolean(photo) || !active}
-          onLoadedData={() => {
-            setReady(true);
-            const video = videoRef.current;
-            if (video?.videoWidth && video.videoHeight) setVideoSize({ width: video.videoWidth, height: video.videoHeight });
-          }}
+          onLoadedMetadata={updateVideoSize}
+          onResize={updateVideoSize}
+          onLoadedData={() => { setReady(true); updateVideoSize(); }}
           aria-label="Live camera preview"
           style={{
             filter: filter.css,
             transform: facing === "user" ? "scaleX(-1)" : undefined,
-            left: `${layout.border / layout.width * 100}%`,
-            top: `${layout.border / layout.height * 100}%`,
-            width: `${videoSize.width / layout.width * 100}%`,
-            height: `${videoSize.height / layout.height * 100}%`,
+            objectFit: "contain",
           }}
         />
-        {frame.id !== "none" && (
-          <div className={styles.liveCaption} aria-hidden="true" style={{ height: `${layout.footer / layout.height * 100}%` }}>
-            <span className={styles.frameNames} style={{ top: `${lineHeight / layout.footer * 100}%`, fontSize: `${Math.round(captionFontSize * 0.9) / layout.width * 100}cqw` }}>{coupleNames}</span>
-            {wedding.hashtags.map((hashtag, index) => (
-              <span key={hashtag} style={{ top: `${lineHeight * (index + 2.2) / layout.footer * 100}%`, fontSize: `${captionFontSize / layout.width * 100}cqw` }}>{hashtag}</span>
-            ))}
-          </div>
-        )}
-        </div>
         {photo && <Image src={photo.url} alt="Your wedding photo with the selected filter and frame" fill unoptimized sizes="(max-width: 640px) 100vw, 512px" className={styles.captured} />}
         {!active && !photo && (
           <div className={styles.empty}>
@@ -325,6 +378,13 @@ export function SnapCamera() {
           </div>
         )}
       </div>
+      </div>
+      {active && (
+        <fieldset className={styles.liveLooks}>
+          <legend className={styles.srOnly}>Camera filters</legend>
+          {PHOTO_FILTERS.map((item) => <button key={item.id} type="button" aria-pressed={filter.id === item.id} onClick={() => selectFilter(item)}>{item.name}</button>)}
+        </fieldset>
+      )}
       <div className={styles.actions}>
         {photo ? (
           <>
@@ -334,11 +394,16 @@ export function SnapCamera() {
           </>
         ) : active ? (
           <>
-            <button className={styles.primary} disabled={!ready || busy || processing} onClick={capture}>{booth.count > 1 ? `Take photo ${shotPreviews.length + 1} of ${booth.count}` : "Take photo"}</button>
-            <button className={styles.secondary} disabled={busy || processing} onClick={() => void startCamera(facing === "user" ? "environment" : "user")}>Switch camera</button>
+            <button className={`${styles.primary} ${styles.shutter}`} disabled={!ready || busy || processing} onClick={capture}><span className={styles.srOnly}>{booth.count > 1 ? `Take photo ${shotPreviews.length + 1} of ${booth.count}` : "Take photo"}</span></button>
+            <button className={`${styles.secondary} ${styles.switchCamera}`} disabled={busy || processing} onClick={() => void startCamera(facing === "user" ? "environment" : "user")}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7h-6l2-2M4 17h6l-2 2M20 7a9 9 0 0 0-15 0M4 17a9 9 0 0 0 15 0M20 7v5M4 17v-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              <span className={styles.srOnly}>Switch camera</span>
+            </button>
           </>
         ) : null}
       </div>
+      </div>
+      <div inert={active}>
       {booth.count > 1 && (
         <ol className={styles.shotTray} aria-label="Your photobooth shots" style={{ gridTemplateColumns: `repeat(${booth.count}, minmax(0, 1fr))` }}>
           {Array.from({ length: booth.count }, (_, index) => (
@@ -378,14 +443,14 @@ export function SnapCamera() {
       <fieldset className={`${styles.filters} ${styles.framePicker}`}>
         <legend>Choose your frame</legend>
         <div>
-          {PHOTO_FRAMES.map((item) => (
+          {frameOptions.map((item) => (
             <button key={item.id} type="button" aria-pressed={frame.id === item.id} disabled={processing} onClick={() => selectFrame(item)}>
               <span className={styles.frameThumb} data-frame={item.id} aria-hidden="true" style={{ "--frame-color": item.background } as CSSProperties}>
                 <span className={styles.miniStrip} style={{
                   gridTemplateRows: `repeat(${booth.rows}, 1fr)`,
                   gridTemplateColumns: `repeat(${booth.columns}, 1fr)`,
-                  width: `${3.2 - booth.count * 0.4}rem`,
-                  height: booth.count === 1 ? "4.2rem" : "5.2rem",
+                  width: `${item.previewWidth}rem`,
+                  height: `${item.previewHeight}rem`,
                 }}>
                   {Array.from({ length: booth.count }, (_, index) => <span key={index} />)}
                 </span>
@@ -414,6 +479,7 @@ export function SnapCamera() {
           : <><svg width="12" height="15" viewBox="0 0 12 15" fill="none" aria-hidden="true"><rect x="1" y="6" width="10" height="8" rx="1.5" fill="currentColor" /><path d="M3 6V4a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.5" /><circle cx="6" cy="10" r="1" fill="#f8eee2" /></svg>Camera access and photo downloads start only when you choose.</>}
       </p>
       {photo && <p className={styles.note}>To add it to your photo library, tap Share photo and choose a save option if available.</p>}
+      </div>
     </section>
   );
 }
