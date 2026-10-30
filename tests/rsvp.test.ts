@@ -1,51 +1,31 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  googleFormSubmission,
-  isGoogleFormReady,
-  type GoogleFormConfig,
-} from "../app/lib/rsvp.ts";
+import { rsvpRow } from "../app/lib/rsvp.ts";
 
-const form: GoogleFormConfig = {
-  formId: "1FAIpQLSexample",
-  fields: { name: "entry.111", attending: "entry.222", guests: "entry.333", message: "entry.444" },
-};
-
-test("a form without an id is not ready", () => {
-  assert.equal(isGoogleFormReady({ ...form, formId: " " }), false);
+test("an acceptance is trimmed and keeps its number of guests", () => {
+  assert.deepEqual(
+    rsvpRow({ name: "  Ana Cruz ", attending: "yes", guests: 2, message: " See you there! " }),
+    { ok: true, row: { name: "Ana Cruz", attending: true, guests: 2, message: "See you there!" } },
+  );
 });
 
-test("a form with a question that has no entry id is not ready", () => {
-  assert.equal(isGoogleFormReady({ ...form, fields: { ...form.fields, guests: "" } }), false);
+test("a decline records no guests", () => {
+  const result = rsvpRow({ name: "Ben", attending: "no", guests: 4, message: "" });
+  assert.ok(result.ok);
+  assert.equal(result.row.guests, 0);
 });
 
-test("a form with an id and an entry id for every question is ready", () => {
-  assert.equal(isGoogleFormReady(form), true);
+test("a reply without a name is rejected", () => {
+  assert.equal(rsvpRow({ name: "  ", attending: "yes", guests: 1, message: "" }).ok, false);
 });
 
-test("an acceptance posts the trimmed answers to the form's response URL", () => {
-  const { url, body } = googleFormSubmission(form, {
-    name: "  Ana Cruz ",
-    attending: "yes",
-    guests: 2,
-    message: " See you there! ",
-  });
-  assert.equal(url, "https://docs.google.com/forms/d/e/1FAIpQLSexample/formResponse");
-  assert.deepEqual(Object.fromEntries(body), {
-    "entry.111": "Ana Cruz",
-    "entry.222": "Joyfully accept",
-    "entry.333": "2",
-    "entry.444": "See you there!",
-  });
+test("an acceptance needs 1 to 10 guests", () => {
+  for (const guests of [0, 11, Number.NaN]) {
+    assert.equal(rsvpRow({ name: "Ana", attending: "yes", guests, message: "" }).ok, false, String(guests));
+  }
 });
 
-test("a decline records zero guests", () => {
-  const { body } = googleFormSubmission(form, {
-    name: "Ben",
-    attending: "no",
-    guests: 3,
-    message: "",
-  });
-  assert.equal(body.get("entry.222"), "Regretfully decline");
-  assert.equal(body.get("entry.333"), "0");
+test("an unknown answer to 'Will you attend?' is rejected", () => {
+  const answers = { name: "Ana", attending: "maybe", guests: 1, message: "" } as never;
+  assert.equal(rsvpRow(answers).ok, false);
 });

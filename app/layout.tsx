@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Great_Vibes } from "next/font/google";
-import { coupleNames, wedding } from "./content";
+import { coupleNamesOf } from "./content";
+import { getWedding } from "./lib/supabase";
 import "./globals.css";
 
 const script = Great_Vibes({
@@ -15,16 +16,19 @@ const serif = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
-const title = `${coupleNames} · Wedding Invitation`;
-const description = `You're invited to celebrate the wedding of ${coupleNames} on ${wedding.date.display}.`;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(wedding.siteUrl),
-  title,
-  description,
-  openGraph: { title, description, type: "website", images: ["/music-box.jpg"] },
-  twitter: { card: "summary_large_image", title, description, images: ["/music-box.jpg"] },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const wedding = await getWedding();
+  const coupleNames = coupleNamesOf(wedding);
+  const title = `${coupleNames} · Wedding Invitation`;
+  const description = `You're invited to celebrate the wedding of ${coupleNames} on ${wedding.date.display}.`;
+  return {
+    metadataBase: new URL(wedding.siteUrl),
+    title,
+    description,
+    openGraph: { title, description, type: "website", images: ["/music-box.jpg"] },
+    twitter: { card: "summary_large_image", title, description, images: ["/music-box.jpg"] },
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

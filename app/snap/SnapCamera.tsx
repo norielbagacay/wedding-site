@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import { applyPhotoFilter, PHOTO_FILTERS, type PhotoFilter } from "../lib/photo";
 import { addPhotoFrame, getFrameLayout, PHOTO_FRAMES, type PhotoFrame } from "../lib/photo-frame";
-import { coupleNames, wedding } from "../content";
 import { BOOTH_LAYOUTS, composeBoothPhotos, getBoothGeometry, type BoothLayout } from "../lib/photo-booth";
 import { isPhonePhotoSaving } from "../lib/photo-saving";
 import styles from "./Snap.module.css";
@@ -12,7 +11,8 @@ import styles from "./Snap.module.css";
 type Facing = "user" | "environment";
 type Photo = { url: string; file: File; downloadRequested: boolean; mobile: boolean; nativeShare: boolean; width: number; height: number };
 
-export function SnapCamera() {
+/** `hashtags` and `names` are written on the photo frames. */
+export function SnapCamera({ hashtags, names }: { hashtags: string[]; names: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
   const liveFilterTrackRef = useRef<HTMLDivElement>(null);
@@ -195,7 +195,7 @@ export function SnapCamera() {
         applyPhotoFilter(pixels.data, selected);
         context.putImageData(pixels, 0, 0);
       }
-      const output = addPhotoFrame(canvas, selectedFrame, wedding.hashtags, coupleNames);
+      const output = addPhotoFrame(canvas, selectedFrame, hashtags, names);
       output.toBlob((blob) => {
         if (render !== renderRef.current) return;
         setProcessing(false);

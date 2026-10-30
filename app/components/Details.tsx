@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { coupleNames, wedding, weekday } from "../content";
+import { coupleNamesOf, weekdayOf, type Wedding } from "../content";
+import { supabaseEnv } from "../lib/supabase-env";
 import { Countdown } from "./Countdown";
 import { Divider } from "./Divider";
 import { GiftMethods } from "./GiftMethods";
@@ -46,13 +47,13 @@ function Section({ id, title, caps, subtitle, children }: SectionProps) {
 }
 
 /** Everything below the hero, in the landing's ivory and gold, one flowing column. */
-export function Details() {
+export function Details({ wedding }: { wedding: Wedding }) {
   const { date, welcome, events, attire, entourage, gifts, rsvp } = wedding;
   return (
     <div className={styles.details}>
       <Section id="details" title={welcome.heading}>
         <p className="mx-auto max-w-md text-[1.35rem] leading-relaxed">{welcome.message}</p>
-        <p className={`mt-10 ${LABEL}`}>{weekday}</p>
+        <p className={`mt-10 ${LABEL}`}>{weekdayOf(wedding)}</p>
         <p className="mt-2 text-4xl tracking-wide">
           <time dateTime={date.iso}>{date.display}</time>
         </p>
@@ -182,12 +183,12 @@ export function Details() {
       </Section>
 
       <Section id="rsvp" title="RSVP" caps subtitle={`Kindly reply by ${rsvp.by}`}>
-        <RsvpForm form={rsvp.googleForm} />
+        <RsvpForm ready={supabaseEnv() !== null} />
       </Section>
 
       <footer className={`${styles.frame} text-center`}>
         <p className="text-2xl italic">With love,</p>
-        <p className={`${SCRIPT} mt-1 text-[clamp(2.75rem,11vw,3.75rem)]`}>{coupleNames}</p>
+        <p className={`${SCRIPT} mt-1 text-[clamp(2.75rem,11vw,3.75rem)]`}>{coupleNamesOf(wedding)}</p>
         <ul className={styles.hashtags} aria-label="Our wedding hashtags">
           {wedding.hashtags.map((hashtag) => <li key={hashtag}>{hashtag}</li>)}
         </ul>

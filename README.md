@@ -20,6 +20,29 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Editing the content (Supabase + /management)
+
+The site's content is stored in Supabase and edited at `/management/login`. Saving
+updates the live site right away, with no rebuild. Until Supabase is set up, or if it
+can't be reached, the site shows the content in `app/content.ts`.
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the dashboard, open **SQL Editor**, paste [`supabase/schema.sql`](supabase/schema.sql) and run it.
+3. Under **Authentication → Users**, choose **Add user → Create new user** and enter your
+   email and a password (tick *Auto Confirm User*).
+4. Back in the SQL Editor, make that account an admin:
+   `insert into public.admins (email) values ('you@example.com');`
+5. Under **Authentication → Sign In / Providers**, turn off **Allow new users to sign up**.
+   (Only emails in `admins` can edit, but nobody else needs an account.)
+6. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key from
+   **Project Settings → API Keys**. On Vercel, add the same two variables under
+   **Settings → Environment Variables** and redeploy once.
+7. Open `/management/login`, sign in, and click **Save changes** once to copy the current
+   content into the database. From then on, edit it there.
+
+Guests' RSVPs are saved in the `rsvps` table and listed at `/management/rsvps`, with totals,
+search, and CSV export. When `supabase/schema.sql` changes, run it again; it keeps your data.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

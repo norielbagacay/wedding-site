@@ -1,12 +1,14 @@
 import { Details } from "./components/Details";
 import { MusicBox } from "./components/MusicBox";
-import { coupleNames, month } from "./content";
+import { coupleNamesOf, monthOf } from "./content";
+import { getWedding } from "./lib/supabase";
 
-export default function Home() {
+export default async function Home() {
+  const wedding = await getWedding();
   return (
     <main>
-      <MusicBox names={coupleNames} heroMonth={month}>
-        <Details />
+      <MusicBox names={coupleNamesOf(wedding)} heroMonth={monthOf(wedding)}>
+        <Details wedding={wedding} />
       </MusicBox>
     </main>
   );

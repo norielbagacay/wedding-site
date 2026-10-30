@@ -1,11 +1,3 @@
-/** A Google Form that collects RSVPs. Its answers land in the form's Google Sheet. */
-export type GoogleFormConfig = {
-  /** The id in the form's link: https://docs.google.com/forms/d/e/<formId>/viewform */
-  formId: string;
-  /** Each question's field name ("entry.123456789"), taken from the form's pre-filled link. */
-  fields: { name: string; attending: string; guests: string; message: string };
-};
-
 export type RsvpAnswers = {
   name: string;
   attending: "yes" | "no";
@@ -13,27 +5,41 @@ export type RsvpAnswers = {
   message: string;
 };
 
-/** The "Will you attend?" choices. The Google Form's options must use exactly this text. */
+/** A reply as stored in Supabase (the rsvps table in supabase/schema.sql). */
+export type RsvpRow = {
+  id: string;
+  name: string;
+  attending: boolean;
+  guests: number;
+  message: string;
+  created_at: string;
+};
+
+/** The "Will you attend?" choices. */
 export const ATTENDING_LABELS = {
   yes: "Joyfully accept",
   no: "Regretfully decline",
 } as const;
 
-const ENTRY_FIELD = /^entry\.\d+$/;
+export const MAX_GUESTS = 10;
 
-export function isGoogleFormReady(form: GoogleFormConfig): boolean {
-  return (
-    form.formId.trim() !== "" &&
-    Object.values(form.fields).every((field) => ENTRY_FIELD.test(field.trim()))
-  );
-}
+/** Checks a reply from the form and turns it into a row for the rsvps table. */
+export function rsvpRow(
+  answers: RsvpAnswers,
+): { ok: true; row: Omit<RsvpRow, "id" | "created_at"> } | { ok: false; error: string } {
+  const name = String(answers.name ?? "").trim();
+  const message = String(answers.message ?? "").trim();
+  const attending = answers.attending === "yes";
+  const guests = attending ? Math.trunc(Number(answers.guests)) : 0;
 
-/** The request that records one RSVP in the Google Form. */
-export function googleFormSubmission(form: GoogleFormConfig, answers: RsvpAnswers) {
-  const body = new URLSearchParams();
-  body.set(form.fields.name.trim(), answers.name.trim());
-  body.set(form.fields.attending.trim(), ATTENDING_LABELS[answers.attending]);
-  body.set(form.fields.guests.trim(), answers.attending === "yes" ? String(answers.guests) : "0");
-  body.set(form.fields.message.trim(), answers.message.trim());
-  return { url: `https://docs.google.com/forms/d/e/${form.formId.trim()}/formResponse`, body };
+  if (!name) return { ok: false, error: "Please enter your name." };
+  if (name.length > 100) return { ok: false, error: "Please shorten your name." };
+  if (answers.attending !== "yes" && answers.attending !== "no") {
+    return { ok: false, error: "Please choose whether you’ll attend." };
+  }
+  if (attending && !(guests >= 1 && guests <= MAX_GUESTS)) {
+    return { ok: false, error: `The number of guests must be 1 to ${MAX_GUESTS}.` };
+  }
+  if (message.length > 1000) return { ok: false, error: "Please shorten your note." };
+  return { ok: true, row: { name, attending, guests, message } };
 }

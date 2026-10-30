@@ -35,6 +35,7 @@ export function GiftMethods({ methods }: { methods: GiftMethod[] }) {
               alt={`${method.name} QR code`}
               width={176}
               height={176}
+              unoptimized
               className="mx-auto mt-4 size-44 rounded-xl border border-gold/30 bg-white p-2"
             />
           )}

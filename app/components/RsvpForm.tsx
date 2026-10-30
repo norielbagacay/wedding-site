@@ -1,19 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import {
-  ATTENDING_LABELS,
-  googleFormSubmission,
-  isGoogleFormReady,
-  type GoogleFormConfig,
-  type RsvpAnswers,
-} from "../lib/rsvp";
+import { ATTENDING_LABELS, MAX_GUESTS, type RsvpAnswers } from "../lib/rsvp";
+import { submitRsvp } from "../lib/rsvp-actions";
 
 type Status =
   | { kind: "idle" }
   | { kind: "sending" }
   | { kind: "sent"; answers: RsvpAnswers }
-  | { kind: "error" };
+  | { kind: "error"; message: string };
 
 const LABEL = "block text-left text-sm tracking-[0.2em] text-gold-dark uppercase";
 const FIELD =
@@ -23,11 +18,10 @@ function firstName(name: string) {
   return name.trim().split(/\s+/)[0];
 }
 
-/** Records an RSVP in the couple's Google Form; until one is set up, says so instead. */
-export function RsvpForm({ form }: { form: GoogleFormConfig }) {
+/** Records an RSVP in Supabase; until it's connected (`ready`), says so instead. */
+export function RsvpForm({ ready }: { ready: boolean }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [attending, setAttending] = useState<RsvpAnswers["attending"]>("yes");
-  const ready = isGoogleFormReady(form);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,15 +32,15 @@ export function RsvpForm({ form }: { form: GoogleFormConfig }) {
       guests: Number(data.get("guests") ?? 1),
       message: String(data.get("message") ?? ""),
     };
-    const { url, body } = googleFormSubmission(form, answers);
     setStatus({ kind: "sending" });
     try {
-      // Google Forms doesn't allow cross-origin reads, so the response is opaque;
-      // a request that completes means the answer was delivered.
-      await fetch(url, { method: "POST", mode: "no-cors", body });
-      setStatus({ kind: "sent", answers });
+      const result = await submitRsvp(answers);
+      setStatus(result.ok ? { kind: "sent", answers } : { kind: "error", message: result.error });
     } catch {
-      setStatus({ kind: "error" });
+      setStatus({
+        kind: "error",
+        message: "Sorry, that didn’t go through. Please check your connection and try again.",
+      });
     }
   }
 
@@ -92,7 +86,7 @@ export function RsvpForm({ form }: { form: GoogleFormConfig }) {
             name="guests"
             type="number"
             min={1}
-            max={10}
+            max={MAX_GUESTS}
             defaultValue={1}
             required
             className={FIELD}
@@ -116,7 +110,7 @@ export function RsvpForm({ form }: { form: GoogleFormConfig }) {
       {!ready && <p className="text-lg italic">Online RSVP opens soon.</p>}
       {status.kind === "error" && (
         <p role="alert" className="text-lg">
-          Sorry, that didn’t go through. Please check your connection and try again.
+          {status.message}
         </p>
       )}
     </form>

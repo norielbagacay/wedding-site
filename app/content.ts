@@ -1,21 +1,17 @@
 /**
- * Everything guests read on the site lives in this file.
+ * What guests read on the site.
+ *
+ * Once Supabase is connected (see supabase/schema.sql), the content is edited at
+ * /management/login and saved in the database; this file is only the starting point,
+ * shown until the first save and whenever the database can't be reached.
  *
  * Before sharing the link:
  * - Replace every value that says "Sample".
  * - Set `siteUrl` to the deployed address (used for link previews).
  * - Keep `date`, and the day in `startsAt`, on the wedding day (`npm test` checks this).
- * - Connect the RSVP form to a Google Form (until then it says online RSVP opens soon):
- *   1. Create a Google Form with four questions: "Name" (short answer), "Will you attend?"
- *      (multiple choice with exactly "Joyfully accept" and "Regretfully decline"),
- *      "Number of guests" (short answer), and "Message" (paragraph).
- *   2. In the form's ⋮ menu choose "Get pre-filled link", type anything in each question,
- *      and click "Get link". The link looks like
- *      https://docs.google.com/forms/d/e/<formId>/viewform?...&entry.111=...&entry.222=...
- *   3. Copy <formId> and each question's entry.<number> into `rsvp.googleForm` below.
+ *
+ * RSVPs are saved in Supabase and listed at /management/rsvps.
  */
-
-import type { GoogleFormConfig } from "./lib/rsvp";
 
 export type WeddingEvent = {
   name: string;
@@ -53,7 +49,7 @@ export type Wedding = {
   /** When the ceremony begins, with the venue's UTC offset; the countdown runs to this. */
   startsAt: string;
   welcome: { heading: string; message: string };
-  rsvp: { by: string; googleForm: GoogleFormConfig };
+  rsvp: { by: string };
   hashtags: string[];
   photoSharing: { message: string; qrImage: string };
   gifts: { message: string; methods: GiftMethod[] };
@@ -72,13 +68,7 @@ export const wedding: Wedding = {
     message:
       "Together with our families, we invite you to share in the day our two lives become one. Having you with us would make our celebration complete.",
   },
-  rsvp: {
-    by: "April 18, 2027",
-    googleForm: {
-      formId: "",
-      fields: { name: "", attending: "", guests: "", message: "" },
-    },
-  },
+  rsvp: { by: "April 18, 2027" },
   hashtags: ["#GENtlyROSHingIntoForever", "#GENuineLoveForROSH"],
   photoSharing: {
     message:
@@ -153,16 +143,22 @@ export const wedding: Wedding = {
   ],
 };
 
-export const coupleNames = `${wedding.couple.first} & ${wedding.couple.second}`;
+export function coupleNamesOf(wedding: Wedding) {
+  return `${wedding.couple.first} & ${wedding.couple.second}`;
+}
 
 /** e.g. "May", derived from `date.iso`; written over the hero, which shows the day and year. */
-export const month = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
-  month: "long",
-  timeZone: "UTC",
-});
+export function monthOf(wedding: Wedding) {
+  return new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    timeZone: "UTC",
+  });
+}
 
 /** e.g. "Sunday", derived from `date.iso`. */
-export const weekday = new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
-  weekday: "long",
-  timeZone: "UTC",
-});
+export function weekdayOf(wedding: Wedding) {
+  return new Date(`${wedding.date.iso}T00:00:00Z`).toLocaleDateString("en-US", {
+    weekday: "long",
+    timeZone: "UTC",
+  });
+}
